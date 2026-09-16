@@ -1,0 +1,48 @@
+name: paytness-reference
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: nopcommerce
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./runtime/001-citext.sql:/docker-entrypoint-initdb.d/001-citext.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d nopcommerce"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  paytness:
+    build:
+      context: ../..
+      dockerfile: reference/nopcommerce/Dockerfile.paytness
+    environment:
+      PAYTNESS_WEBHOOK_SECRET: ${PAYTNESS_WEBHOOK_SECRET:-paytness-reference-test-only-signing-key}
+    command: ["sleep", "infinity"]
+    volumes:
+      - ../../.artifacts/nopcommerce:/artifacts
+
+  nopcommerce:
+    build:
+      context: ../..
+      dockerfile: reference/nopcommerce/Dockerfile.nopcommerce
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      PAYTNESS_REFERENCE_MODE: "1"
+      PAYTNESS_REFERENCE_STORE_ORIGIN: http://nopcommerce:8080/
+      PAYTNESS_PROVIDER_ORIGIN: http://paytness:8787
+      PAYTNESS_WEBHOOK_SECRET: ${PAYTNESS_WEBHOOK_SECRET:-paytness-reference-test-only-signing-key}
+      PAYTNESS_REFERENCE_MUTATION: ${PAYTNESS_REFERENCE_MUTATION:-}
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      paytness:
+        condition: service_started
+
+volumes:
+  postgres-data:

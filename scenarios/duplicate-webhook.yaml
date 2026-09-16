@@ -1,0 +1,76 @@
+version: 1
+id: duplicate-webhook
+seed: 11
+timeoutSeconds: 10
+contract: contracts/basic.yaml
+provider:
+  responseModes:
+    - deliver
+actions:
+  - method: POST
+    path: /test/pay
+webhooks:
+  path: /test/webhook
+  events:
+    - id: evt-payment-succeeded-1
+      type: payment.succeeded
+      attemptOrdinal: 1
+  deliveries:
+    - eventId: evt-payment-succeeded-1
+    - eventId: evt-payment-succeeded-1
+observations:
+  - id: payment
+    path: /test/state
+    timeoutMs: 3000
+    intervalMs: 50
+assertions:
+  - id: one-request
+    kind: provider_request_count
+    comparator: eq
+    expected: 1
+  - id: one-attempt
+    kind: provider_attempt_count
+    comparator: eq
+    expected: 1
+  - id: one-economic-effect
+    kind: provider_effect_count
+    comparator: eq
+    expected: 1
+  - id: two-webhook-deliveries
+    kind: webhook_delivery_count
+    comparator: eq
+    expected: 2
+  - id: two-webhook-acks
+    kind: webhook_acked_count
+    comparator: eq
+    expected: 2
+  - id: paid
+    kind: observation
+    observation: payment
+    pointer: /paymentStatus
+    comparator: eq
+    expected: Paid
+  - id: two-webhooks-received
+    kind: observation
+    observation: payment
+    pointer: /webhookReceivedCount
+    comparator: eq
+    expected: 2
+  - id: one-webhook-applied
+    kind: observation
+    observation: payment
+    pointer: /webhookAppliedCount
+    comparator: eq
+    expected: 1
+  - id: no-signature-failures
+    kind: observation
+    observation: payment
+    pointer: /webhookSignatureFailureCount
+    comparator: eq
+    expected: 0
+  - id: one-paid-event
+    kind: observation
+    observation: payment
+    pointer: /orderPaidEventCount
+    comparator: eq
+    expected: 1

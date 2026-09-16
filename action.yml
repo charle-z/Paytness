@@ -1,0 +1,77 @@
+name: Paytness
+description: Run adversarial payment-reliability scenarios against a test SUT.
+author: Paytness contributors
+branding:
+  icon: shield
+  color: purple
+
+inputs:
+  version:
+    description: Paytness NuGet tool version.
+    required: false
+    default: '0.1.0'
+  scenario:
+    description: Path to ScenarioSpec YAML or JSON in the caller workspace.
+    required: true
+  sut:
+    description: Absolute HTTP(S) origin of the test SUT.
+    required: true
+  provider-listen:
+    description: Paytness provider listen IP:port.
+    required: false
+    default: '127.0.0.1:8787'
+  allow-target:
+    description: Optional exact allowed SUT host:port for non-loopback targets.
+    required: false
+    default: ''
+  allow-public-targets:
+    description: Permit an explicitly allowlisted public SUT target.
+    required: false
+    default: 'false'
+  allow-non-loopback-listen:
+    description: Permit provider listen outside loopback.
+    required: false
+    default: 'false'
+  webhook-secret-env:
+    description: Name of an existing environment variable containing the webhook HMAC secret.
+    required: false
+    default: ''
+  json-report:
+    description: JSON report output path.
+    required: false
+    default: 'paytness-report.json'
+  junit-report:
+    description: JUnit report output path.
+    required: false
+    default: 'paytness-junit.xml'
+
+outputs:
+  json-report:
+    description: JSON report path.
+    value: ${{ steps.run.outputs.json-report }}
+  junit-report:
+    description: JUnit report path.
+    value: ${{ steps.run.outputs.junit-report }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up .NET 10
+      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      with:
+        dotnet-version: '10.0.401'
+    - name: Run Paytness
+      id: run
+      shell: bash
+      env:
+        PAYTNESS_ACTION_VERSION: ${{ inputs.version }}
+        PAYTNESS_ACTION_SCENARIO: ${{ inputs.scenario }}
+        PAYTNESS_ACTION_SUT: ${{ inputs.sut }}
+        PAYTNESS_ACTION_PROVIDER_LISTEN: ${{ inputs.provider-listen }}
+        PAYTNESS_ACTION_ALLOW_TARGET: ${{ inputs.allow-target }}
+        PAYTNESS_ACTION_ALLOW_PUBLIC_TARGETS: ${{ inputs.allow-public-targets }}
+        PAYTNESS_ACTION_ALLOW_NON_LOOPBACK_LISTEN: ${{ inputs.allow-non-loopback-listen }}
+        PAYTNESS_ACTION_WEBHOOK_SECRET_ENV: ${{ inputs.webhook-secret-env }}
+        PAYTNESS_ACTION_JSON: ${{ inputs.json-report }}
+        PAYTNESS_ACTION_JUNIT: ${{ inputs.junit-report }}
+      run: "$GITHUB_ACTION_PATH/eng/github-action-run.sh"

@@ -1,0 +1,13 @@
+version: 1
+createPayment:
+  method: POST
+  path: /provider/v1/payments
+  idempotencyHeader: Idempotency-Key
+  extract:
+    logicalPayment: /merchantReference
+    amountMinor: /amountMinor
+    currency: /currency
+stateValues:
+  processing: PROCESSING
+  succeeded: PAID
+  failed: DECLINED

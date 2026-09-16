@@ -1,0 +1,11 @@
+{
+  "Group": "Payment methods",
+  "FriendlyName": "Paytness Reference Payment",
+  "SystemName": "Paytness.Reference",
+  "Version": "0.1.0",
+  "SupportedVersions": [ "4.90" ],
+  "Author": "Paytness contributors",
+  "DisplayOrder": 1000,
+  "FileName": "Paytness.Reference.dll",
+  "Description": "Test-only Paytness payment reference. Never enable in production."
+}

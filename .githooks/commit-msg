@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+set -eu
+msg_file=$1
+trailer='Co-authored-by: Carlos Acosta <93443910+charle-z@users.noreply.github.com>'
+if ! grep -Fqx "$trailer" "$msg_file"; then
+  printf '\n%s\n' "$trailer" >> "$msg_file"
+fi

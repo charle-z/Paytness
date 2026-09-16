@@ -1,0 +1,23 @@
+version: 1
+id: nop-07-concurrent
+seed: 107
+timeoutSeconds: 15
+contract: contracts/basic.yaml
+provider:
+  responseModes: [deliver]
+actions:
+  - method: POST
+    path: /test/pay
+    concurrency: 2
+    body:
+      logicalPayment: 77777777-7777-7777-7777-777777777707
+      amountMinor: 1250
+observations:
+  - { id: payment, path: /test/state, timeoutMs: 5000, intervalMs: 50 }
+assertions:
+  - { id: two-requests, kind: provider_request_count, comparator: eq, expected: 2 }
+  - { id: one-attempt, kind: provider_attempt_count, comparator: eq, expected: 1 }
+  - { id: one-economic-effect, kind: provider_effect_count, comparator: eq, expected: 1 }
+  - { id: one-key, kind: distinct_idempotency_key_count, comparator: eq, expected: 1 }
+  - { id: paid, kind: observation, observation: payment, pointer: /paymentStatus, comparator: eq, expected: Paid }
+  - { id: one-paid-event, kind: observation, observation: payment, pointer: /orderPaidEventCount, comparator: eq, expected: 1 }

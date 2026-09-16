@@ -1,0 +1,22 @@
+ARG NOPCOMMERCE_IMAGE=nopcommerceteam/nopcommerce:4.90.8
+FROM ${NOPCOMMERCE_IMAGE} AS nopbase
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0.401 AS plugin-build
+WORKDIR /src
+COPY --from=nopbase /app/Nop.Core.dll /refs/Nop.Core.dll
+COPY --from=nopbase /app/Nop.Data.dll /refs/Nop.Data.dll
+COPY --from=nopbase /app/Nop.Services.dll /refs/Nop.Services.dll
+COPY --from=nopbase /app/Nop.Web.Framework.dll /refs/Nop.Web.Framework.dll
+COPY reference/nopcommerce/plugin/Paytness.Reference/Paytness.Reference.csproj ./
+COPY reference/nopcommerce/plugin/Paytness.Reference/packages.lock.json ./
+COPY reference/nopcommerce/plugin/Paytness.Reference/plugin.json ./
+RUN dotnet restore Paytness.Reference.csproj --locked-mode -p:NopReferenceDir=/refs
+COPY reference/nopcommerce/plugin/Paytness.Reference/*.cs ./
+RUN dotnet build Paytness.Reference.csproj -c Release --no-restore -p:NopReferenceDir=/refs
+
+FROM nopbase AS final
+COPY reference/nopcommerce/runtime/appsettings.json /app/App_Data/appsettings.json
+COPY reference/nopcommerce/runtime/plugins.json /app/App_Data/plugins.json
+RUN mkdir -p /app/Plugins/Paytness.Reference
+COPY reference/nopcommerce/plugin/Paytness.Reference/plugin.json /app/Plugins/Paytness.Reference/plugin.json
+COPY --from=plugin-build /src/bin/Release/net9.0/Paytness.Reference.dll /app/Plugins/Paytness.Reference/Paytness.Reference.dll

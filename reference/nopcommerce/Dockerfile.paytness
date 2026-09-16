@@ -1,0 +1,16 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0.401 AS build
+WORKDIR /src
+COPY Directory.Build.props global.json ./
+COPY src/Paytness/Paytness.csproj src/Paytness/packages.lock.json src/Paytness/
+RUN dotnet restore src/Paytness/Paytness.csproj --locked-mode
+COPY src/Paytness/ src/Paytness/
+RUN dotnet publish src/Paytness/Paytness.csproj -c Release --no-restore -o /out -p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.12 AS final
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY --from=build /out/ ./
+COPY scenarios/ /scenarios/
+CMD ["sleep", "infinity"]

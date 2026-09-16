@@ -1,0 +1,31 @@
+version: 1
+id: nop-05-out-of-order
+seed: 105
+timeoutSeconds: 15
+contract: contracts/basic.yaml
+provider:
+  responseModes: [deliver]
+actions:
+  - method: POST
+    path: /test/pay
+    body:
+      logicalPayment: 55555555-5555-5555-5555-555555555505
+      amountMinor: 1250
+webhooks:
+  path: /test/webhook
+  events:
+    - { id: nop05-processing, type: payment.processing, attemptOrdinal: 1 }
+    - { id: nop05-succeeded, type: payment.succeeded, attemptOrdinal: 1 }
+  deliveries:
+    - { eventId: nop05-processing, delayMs: 100 }
+    - { eventId: nop05-succeeded, delayMs: 0 }
+observations:
+  - { id: payment, path: /test/state, timeoutMs: 5000, intervalMs: 50 }
+assertions:
+  - { id: one-economic-effect, kind: provider_effect_count, comparator: eq, expected: 1 }
+  - { id: two-deliveries, kind: webhook_delivery_count, comparator: eq, expected: 2 }
+  - { id: two-acks, kind: webhook_acked_count, comparator: eq, expected: 2 }
+  - { id: succeeded-first, kind: observation, observation: payment, pointer: /webhookEventTypes/0, comparator: eq, expected: payment.succeeded }
+  - { id: processing-second, kind: observation, observation: payment, pointer: /webhookEventTypes/1, comparator: eq, expected: payment.processing }
+  - { id: paid, kind: observation, observation: payment, pointer: /paymentStatus, comparator: eq, expected: Paid }
+  - { id: one-paid-event, kind: observation, observation: payment, pointer: /orderPaidEventCount, comparator: eq, expected: 1 }

@@ -1,0 +1,38 @@
+version: 1
+id: nop-04-duplicate-webhook
+seed: 104
+timeoutSeconds: 15
+contract: contracts/basic.yaml
+provider:
+  responseModes: [deliver]
+actions:
+  - method: POST
+    path: /test/pay
+    body:
+      logicalPayment: 44444444-4444-4444-4444-444444444404
+      amountMinor: 1250
+webhooks:
+  path: /test/webhook
+  events:
+    - id: nop04-succeeded
+      type: payment.succeeded
+      attemptOrdinal: 1
+  deliveries:
+    - eventId: nop04-succeeded
+    - eventId: nop04-succeeded
+observations:
+  - id: payment
+    path: /test/state
+    timeoutMs: 5000
+    intervalMs: 50
+assertions:
+  - { id: one-request, kind: provider_request_count, comparator: eq, expected: 1 }
+  - { id: one-attempt, kind: provider_attempt_count, comparator: eq, expected: 1 }
+  - { id: one-economic-effect, kind: provider_effect_count, comparator: eq, expected: 1 }
+  - { id: two-deliveries, kind: webhook_delivery_count, comparator: eq, expected: 2 }
+  - { id: two-acks, kind: webhook_acked_count, comparator: eq, expected: 2 }
+  - { id: paid, kind: observation, observation: payment, pointer: /paymentStatus, comparator: eq, expected: Paid }
+  - { id: two-received, kind: observation, observation: payment, pointer: /webhookReceivedCount, comparator: eq, expected: 2 }
+  - { id: one-applied, kind: observation, observation: payment, pointer: /webhookAppliedCount, comparator: eq, expected: 1 }
+  - { id: no-signature-failures, kind: observation, observation: payment, pointer: /webhookSignatureFailureCount, comparator: eq, expected: 0 }
+  - { id: one-paid-event, kind: observation, observation: payment, pointer: /orderPaidEventCount, comparator: eq, expected: 1 }

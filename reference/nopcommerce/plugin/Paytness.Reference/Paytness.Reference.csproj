@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <NopReferenceDir Condition="'$(NopReferenceDir)' == ''">$(MSBuildProjectDirectory)/../../.refs</NopReferenceDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <Reference Include="Nop.Core"><HintPath>$(NopReferenceDir)/Nop.Core.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Nop.Data"><HintPath>$(NopReferenceDir)/Nop.Data.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Nop.Services"><HintPath>$(NopReferenceDir)/Nop.Services.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Nop.Web.Framework"><HintPath>$(NopReferenceDir)/Nop.Web.Framework.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

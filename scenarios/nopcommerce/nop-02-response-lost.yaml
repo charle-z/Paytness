@@ -1,0 +1,45 @@
+version: 1
+id: nop-02-response-lost
+seed: 102
+timeoutSeconds: 15
+contract: contracts/basic.yaml
+provider:
+  responseModes:
+    - abort_after_commit
+actions:
+  - method: POST
+    path: /test/pay
+    body:
+      logicalPayment: 22222222-2222-2222-2222-222222222202
+      amountMinor: 1250
+      retryOnAmbiguity: false
+observations:
+  - id: payment
+    path: /test/state
+    timeoutMs: 5000
+    intervalMs: 50
+assertions:
+  - id: one-request
+    kind: provider_request_count
+    comparator: eq
+    expected: 1
+  - id: one-attempt
+    kind: provider_attempt_count
+    comparator: eq
+    expected: 1
+  - id: one-economic-effect
+    kind: provider_effect_count
+    comparator: eq
+    expected: 1
+  - id: remains-pending
+    kind: observation
+    observation: payment
+    pointer: /paymentStatus
+    comparator: eq
+    expected: Pending
+  - id: no-paid-event
+    kind: observation
+    observation: payment
+    pointer: /orderPaidEventCount
+    comparator: eq
+    expected: 0

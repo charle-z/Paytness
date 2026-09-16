@@ -1,0 +1,46 @@
+version: 1
+id: concurrent-same-payment
+seed: 23
+timeoutSeconds: 10
+contract: contracts/basic.yaml
+provider:
+  responseModes:
+    - deliver
+actions:
+  - method: POST
+    path: /test/pay
+    concurrency: 2
+observations:
+  - id: payment
+    path: /test/state
+    timeoutMs: 3000
+    intervalMs: 50
+assertions:
+  - id: two-provider-requests
+    kind: provider_request_count
+    comparator: eq
+    expected: 2
+  - id: one-attempt
+    kind: provider_attempt_count
+    comparator: eq
+    expected: 1
+  - id: one-economic-effect
+    kind: provider_effect_count
+    comparator: eq
+    expected: 1
+  - id: one-key
+    kind: distinct_idempotency_key_count
+    comparator: eq
+    expected: 1
+  - id: paid
+    kind: observation
+    observation: payment
+    pointer: /paymentStatus
+    comparator: eq
+    expected: Paid
+  - id: one-paid-event
+    kind: observation
+    observation: payment
+    pointer: /orderPaidEventCount
+    comparator: eq
+    expected: 1

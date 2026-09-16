@@ -1,0 +1,67 @@
+version: 1
+id: out-of-order-webhook
+seed: 17
+timeoutSeconds: 10
+contract: contracts/basic.yaml
+provider:
+  responseModes:
+    - deliver
+actions:
+  - method: POST
+    path: /test/pay
+webhooks:
+  path: /test/webhook
+  events:
+    - id: evt-processing-1
+      type: payment.processing
+      attemptOrdinal: 1
+    - id: evt-succeeded-1
+      type: payment.succeeded
+      attemptOrdinal: 1
+  deliveries:
+    - eventId: evt-processing-1
+      delayMs: 100
+    - eventId: evt-succeeded-1
+      delayMs: 0
+observations:
+  - id: payment
+    path: /test/state
+    timeoutMs: 3000
+    intervalMs: 50
+assertions:
+  - id: one-economic-effect
+    kind: provider_effect_count
+    comparator: eq
+    expected: 1
+  - id: two-deliveries
+    kind: webhook_delivery_count
+    comparator: eq
+    expected: 2
+  - id: two-acks
+    kind: webhook_acked_count
+    comparator: eq
+    expected: 2
+  - id: succeeded-delivered-first
+    kind: observation
+    observation: payment
+    pointer: /webhookEventTypes/0
+    comparator: eq
+    expected: payment.succeeded
+  - id: processing-delivered-second
+    kind: observation
+    observation: payment
+    pointer: /webhookEventTypes/1
+    comparator: eq
+    expected: payment.processing
+  - id: paid
+    kind: observation
+    observation: payment
+    pointer: /paymentStatus
+    comparator: eq
+    expected: Paid
+  - id: one-paid-event
+    kind: observation
+    observation: payment
+    pointer: /orderPaidEventCount
+    comparator: eq
+    expected: 1
