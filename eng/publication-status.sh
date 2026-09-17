@@ -78,11 +78,10 @@ fi
 alpha 'Smoke native release binaries before advertising their first packaged alpha surfaces'
 alpha 'Have someone other than the author attempt the clean Quick Start before the first packaged alpha'
 alpha 'Re-check then-current nopCommerce NPL 4.0 terms before redistributing any combined/derived reference artifact'
-manual 'Complete the official trademark-database screen before changing repository visibility'
-manual 'After repository visibility changes, immediately enable GitHub Private Vulnerability Reporting and verify Report a vulnerability before announcing the source preview'
+info 'Phase A external visibility/name/PVR checks are recorded in docs/PUBLICATION-CHECKLIST.md; re-check them only if repository settings or project identity change'
 
 printf '\nAutomated source-preview blockers: %s\n' "$blocks"
 if [ "$blocks" -ne 0 ]; then
   exit 1
 fi
-printf 'Repository-local source-preview preflight is clear; MANUAL visibility checks and ALPHA release gates still apply.\n'
+printf 'Repository-local source-preview preflight is clear; recorded Phase A external checks are complete and ALPHA release gates still apply.\n'

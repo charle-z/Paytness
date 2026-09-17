@@ -9,19 +9,21 @@ Use `./eng/publication-status.sh` (or `.ps1`) for the cheap repository-local **s
 Required before changing repository visibility:
 
 - [x] Technical name screen completed 2026-09-17: exact `paytness` entry absent from NuGet, PyPI and npm registry APIs; GitHub repository search returned no exact-name repository. Re-check package availability immediately before first package publish.
-- [ ] Perform a reasonable screen in official trademark databases close to the repository visibility change; the technical registry screen is not trademark clearance.
+- [x] Manual WIPO and Colombia SIC name searches were completed before visibility change with no conflicting `Paytness` registration identified; this is a practical pre-alpha screen, not legal trademark clearance.
 - [x] Paytness core is Apache-2.0; canonical text is in `LICENSE` and NuGet/OCI metadata matches.
 - [x] nopCommerce 4.90.8 / NPL 4.0 is an explicit test-only reference boundary; no prebuilt nopCommerce-derived image is published by default.
 - [x] Generated `.artifacts/`, `dist/`, `.agent-memory/`, nopCommerce DLL refs and local reference artifacts are ignored.
 - [x] The tracked publication candidate tree has a Gitleaks gate and publication hygiene checks.
-- [x] Full Git history has been reviewed with Gitleaks before first visibility change; no leaked secrets were detected in the reviewed 21-commit history.
+- [x] Full Git history was reviewed with Gitleaks before first visibility change; no leaked secrets were detected in the reviewed 22-commit history.
 - [x] Historical generated/private-state paths (`.artifacts/`, `.agent-memory/`, `.local/`, `dist/`, nopCommerce `.refs`) were never tracked in the reviewed history.
 - [x] `SECURITY.md` defines GitHub Private Vulnerability Reporting as the public disclosure channel.
 - [x] The reference plugin/Compose configuration is clearly test-only and must not be treated as production deployment guidance.
-- [ ] `./eng/publication-status.sh` PASS on the exact commit intended for the visibility change.
-- [ ] Change visibility intentionally; immediately enable GitHub Private Vulnerability Reporting and verify **Report a vulnerability** before announcing the source preview.
+- [x] `./eng/publication-status.sh` passed on the exact source-preview commit before visibility change.
+- [x] Repository visibility is public and GitHub Private Vulnerability Reporting is enabled and verified.
 
 A source preview does **not** require a published NuGet package/image, a GitHub release, active Actions workflows, native Windows/macOS release smokes, normal-host Buildx/Compose release gates, or an external first-run tester.
+
+**Phase A status: complete.** Paytness is currently a public pre-alpha source preview.
 
 ## Phase B — first packaged alpha
 

@@ -81,7 +81,7 @@ Changes that affect payment semantics or the nopCommerce integration must also p
 ./reference/nopcommerce/run.sh
 ```
 
-GitHub Actions remains disabled during the private pre-alpha phase. Future CI must call these repository scripts instead of duplicating their logic.
+GitHub Actions remains intentionally disabled during the public pre-alpha source preview. Future CI must call these repository scripts instead of duplicating their logic.
 
 ## Distribution — not published yet
 

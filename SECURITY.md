@@ -16,16 +16,11 @@ Do not use production PAN/CVV/PIN/track data with Paytness.
 
 ## Reporting a vulnerability
 
-Paytness will use **GitHub Private Vulnerability Reporting** as its public disclosure channel. GitHub exposes this feature only for public repositories, so it cannot be enabled while this repository remains private.
+Paytness uses **GitHub Private Vulnerability Reporting** as its public disclosure channel. Private vulnerability reporting is enabled for this public repository; use **Report a vulnerability** under Security/Advisories for sensitive reports.
 
-The public-launch sequence is therefore fail-closed:
+The source-preview launch completed with repository visibility set to public and **Private vulnerability reporting** enabled and verified.
 
-1. make the repository public only when the publication checklist is otherwise satisfied;
-2. immediately enable **Private vulnerability reporting** in the repository security settings;
-3. verify that the repository exposes **Report a vulnerability** under Security/Advisories;
-4. only then publish/announce the first public release.
-
-Once enabled, report vulnerabilities through GitHub's **Report a vulnerability** form. Do **not** open a public issue containing vulnerability details. If private reporting is unexpectedly unavailable, avoid publishing sensitive details and wait for the private channel to be restored.
+Report vulnerabilities through GitHub's **Report a vulnerability** form. Do **not** open a public issue containing vulnerability details. If private reporting is unexpectedly unavailable, avoid publishing sensitive details and wait for the private channel to be restored.
 
 Before the first public prerelease there are no publicly supported Paytness versions. The supported-version policy will be versioned alongside the first public release rather than invented in advance.
 

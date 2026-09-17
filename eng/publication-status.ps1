@@ -38,8 +38,7 @@ if ($buildx) { Alpha 'Docker Buildx available for the first-alpha multiarch OCI 
 Alpha 'Smoke native release binaries before advertising their first packaged alpha surfaces'
 Alpha 'Have someone other than the author attempt the clean Quick Start before the first packaged alpha'
 Alpha 'Re-check then-current nopCommerce NPL 4.0 terms before redistributing any combined/derived reference artifact'
-Manual 'Complete the official trademark-database screen before changing repository visibility'
-Manual 'After repository visibility changes, immediately enable GitHub Private Vulnerability Reporting and verify Report a vulnerability before announcing the source preview'
+Info 'Phase A external visibility/name/PVR checks are recorded in docs/PUBLICATION-CHECKLIST.md; re-check them only if repository settings or project identity change'
 Write-Host "`nAutomated source-preview blockers: $blocks"
 if ($blocks -ne 0) { exit 1 }
-Write-Host 'Repository-local source-preview preflight is clear; MANUAL visibility checks and ALPHA release gates still apply.'
+Write-Host 'Repository-local source-preview preflight is clear; recorded Phase A external checks are complete and ALPHA release gates still apply.'

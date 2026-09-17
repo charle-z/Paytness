@@ -1,6 +1,6 @@
 # Paytness distribution
 
-Paytness v0.1 prepares four distribution surfaces from the same CLI implementation. None are published remotely during the private pre-alpha phase.
+Paytness v0.1 prepares four distribution surfaces from the same CLI implementation. The source repository is public as a pre-alpha preview, but no NuGet package, OCI image, GitHub release asset, or published Action version exists yet.
 
 The CLI project intentionally uses `Microsoft.NET.Sdk` plus an explicit `Microsoft.AspNetCore.App` framework reference instead of the Web SDK. That keeps embedded Kestrel without pulling IIS/static-web deployment conventions into a CLI release. Native AOT remains out of scope for v0.1.
 
