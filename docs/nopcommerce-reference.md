@@ -3,6 +3,7 @@
 The reference SUT is **nopCommerce 4.90.8 + PostgreSQL 16**. It exists to prove that Paytness can detect payment-reliability failures in a real external .NET application, not only in the synthetic test SUT.
 
 Paytness core remains .NET 10 and in-memory. It never reads the nopCommerce database and contains no nopCommerce-specific code.
+The test-only plugin targets `net9.0` because nopCommerce 4.90.8 does; that target does not leak into Paytness core.
 
 ## One-command reference gate
 

@@ -18,7 +18,7 @@ Windows PowerShell:
 
 These commands are the local source of truth for restore, formatting, Release build, tests, scenario validation, and dependency vulnerability auditing. Future CI must call the same verification flow rather than reimplementing it differently.
 
-`eng/verify.*` also runs the deterministic B1/B2/B6 quality-gate executable. Timing/RSS/B7 checks are intentionally separate so ordinary PR validation stays stable:
+`eng/verify.*` also runs deterministic B1/B2/B5/B6 quality gates. Timing/RSS/B7 checks are intentionally separate so ordinary PR validation stays stable:
 
 ```sh
 ./eng/performance-gates.sh
@@ -35,7 +35,11 @@ Run the performance gate for changes to parsing, scheduling, execution/concurren
 - Paytness never reads the SUT database.
 - New dependencies require a concrete need and security/maintenance justification.
 
-See `docs/PRD.md`, `docs/adr/`, `docs/QUALITY-GATES.md`, and `docs/BACKLOG.md` before changing public contracts.
+See `docs/PRD.md`, `docs/adr/001-architecture.md`, `docs/adr/002-scenario-spec.md`, `docs/adr/003-security-target-model.md`, and `docs/QUALITY-GATES.md` before changing public contracts.
+
+### Test dependency note
+
+Tests use `xunit.v3` with the base `FsCheck` package through FsCheck's programmatic API. Do not add `FsCheck.Xunit` unless its dependency model changes: the current adapter brings xUnit 2.x assemblies and conflicts with xUnit v3.
 
 ## Real-SUT reference gate
 

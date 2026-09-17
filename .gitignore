@@ -17,3 +17,5 @@ reference/nopcommerce/.refs/
 reference/nopcommerce/artifacts/
 
 dist/
+
+.agent-memory/
