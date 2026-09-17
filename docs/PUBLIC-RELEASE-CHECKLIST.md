@@ -7,7 +7,7 @@ The existing private repository should become public only after this checklist i
 - [ ] README quick start has been reproduced from a clean machine/workspace;
 - [ ] Paytness core license selected and `LICENSE` added;
 - [ ] `reference/nopcommerce/` NPL 4.0 license/notice posture explicitly resolved;
-- [ ] `SECURITY.md` contains a durable private disclosure channel;
+- [ ] `SECURITY.md` names GitHub Private Vulnerability Reporting as the launch channel; after visibility changes, enable it and verify `Report a vulnerability` before publishing/announcing a release.
 - [ ] `CONTRIBUTING.md` matches the actual verification workflow;
 - [ ] no secrets, credentials, production data, or private endpoints in tracked files/history;
 - [ ] public ScenarioSpec/ProviderContract/JSON report versions documented;

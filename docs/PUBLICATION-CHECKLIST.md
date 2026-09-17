@@ -61,3 +61,4 @@ This checklist is intentionally blocking. A green local build is not authorizati
 - [ ] First useful PASS/FAIL can be reached without private context or manual repository surgery.
 - [ ] `CONTRIBUTING.md`, `SECURITY.md`, ADRs and release notes match actual behavior.
 - [ ] Change repository visibility only after all blocking items above are resolved.
+- [ ] Treat visibility change + enabling GitHub Private Vulnerability Reporting as one launch sequence; do not tag/publish/announce until the private reporting button is verified.
