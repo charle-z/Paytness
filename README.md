@@ -154,3 +154,9 @@ PAYTNESS_ENABLE_GITHUB_ACTIONS=1 ./eng/enable-github-workflows.sh
 Do not enable/push them merely to make CI look complete: see `docs/PUBLICATION-CHECKLIST.md` first.
 
 Check cheap publication readiness at any time with `./eng/publication-status.sh` (or `./eng/publication-status.ps1` on PowerShell). It reports all repository-local blockers plus the remaining external/manual gates without running the expensive release suite.
+
+## License
+
+Paytness core and normal distribution surfaces are licensed under the Apache License 2.0. See `LICENSE` and `LICENSING.md`.
+
+The test-only nopCommerce 4.90.8 reference has an explicit third-party boundary: original Paytness-authored files remain Apache-2.0, but nopCommerce is upstream NPL 4.0 and a linked/combined reference artifact is not presented as Apache-2.0-only. Paytness does not publish a prebuilt nopCommerce-derived image by default. See `reference/nopcommerce/LICENSING.md` and `THIRD_PARTY_NOTICES.md`.

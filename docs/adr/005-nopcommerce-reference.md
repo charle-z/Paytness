@@ -38,7 +38,7 @@ Costs:
 - the reference plugin targets net9.0 because nopCommerce 4.90.8 does;
 - real-SUT startup is much slower than the synthetic gate;
 - Docker is required for the one-command public reference gate;
-- nopCommerce 4.90.8 uses NPL 4.0, so the reference subtree has a separate licensing/publication gate and no prebuilt nopCommerce-derived image is published by default.
+- nopCommerce 4.90.8 uses NPL 4.0. Original Paytness-authored reference files remain Apache-2.0, but combined/derived nopCommerce artifacts are not treated as Apache-2.0-only; no prebuilt nopCommerce-derived image is published by default.
 
 ## Rejection criteria
 

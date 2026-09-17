@@ -18,6 +18,7 @@
     <RepositoryUrl>https://github.com/charle-z/paytness</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -25,6 +26,9 @@
 
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" Link="README.md" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="/" Link="LICENSE" />
+    <None Include="../../LICENSING.md" Pack="true" PackagePath="/" Link="LICENSING.md" />
+    <None Include="../../THIRD_PARTY_NOTICES.md" Pack="true" PackagePath="/" Link="THIRD_PARTY_NOTICES.md" />
   </ItemGroup>
 
   <ItemGroup>

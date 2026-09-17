@@ -13,24 +13,36 @@ manual() { printf '[MANUAL] %s\n' "$*"; }
 
 printf 'Paytness publication preflight\n\n'
 
-for required in README.md SECURITY.md CONTRIBUTING.md THIRD_PARTY_NOTICES.md docs/PUBLICATION-CHECKLIST.md docs/DISTRIBUTION.md; do
+for required in README.md SECURITY.md CONTRIBUTING.md LICENSE LICENSING.md THIRD_PARTY_NOTICES.md reference/nopcommerce/LICENSING.md docs/PUBLICATION-CHECKLIST.md docs/DISTRIBUTION.md; do
   if [ -f "$required" ]; then pass "$required present"; else block "$required missing"; fi
 done
 
-if [ -f LICENSE ]; then
-  pass 'LICENSE present'
+if grep -Fq 'Apache License' LICENSE 2>/dev/null && grep -Fq 'Version 2.0' LICENSE 2>/dev/null; then
+  pass 'Apache-2.0 LICENSE present'
 else
-  block 'LICENSE missing: choose the Paytness core license before publication'
+  block 'LICENSE is missing or is not Apache License 2.0'
 fi
 
 if command -v dotnet >/dev/null 2>&1; then
   license_expr=$(dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:PackageLicenseExpression 2>/dev/null || true)
   license_file=$(dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:PackageLicenseFile 2>/dev/null || true)
   repo_url=$(dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:RepositoryUrl 2>/dev/null || true)
-  if [ -n "$license_expr" ] || [ -n "$license_file" ]; then pass 'NuGet license metadata present'; else block 'NuGet license metadata missing'; fi
+  if [ "$license_expr" = 'Apache-2.0' ]; then pass 'NuGet license metadata is Apache-2.0'; else block "unexpected NuGet license metadata: ${license_expr:-<empty>}"; fi
   if [ "$repo_url" = 'https://github.com/charle-z/paytness' ]; then pass 'NuGet RepositoryUrl matches owner-bound repository'; else block "unexpected RepositoryUrl: ${repo_url:-<empty>}"; fi
 else
   block '.NET SDK unavailable: cannot inspect package metadata'
+fi
+
+if grep -Fq 'org.opencontainers.image.licenses="Apache-2.0"' Dockerfile 2>/dev/null; then
+  pass 'OCI license metadata is Apache-2.0'
+else
+  block 'OCI license metadata is not Apache-2.0'
+fi
+
+if grep -Fq 'NPL 4.0' reference/nopcommerce/LICENSING.md 2>/dev/null && grep -Fq 'does **not** publish a prebuilt nopCommerce-derived image' reference/nopcommerce/LICENSING.md 2>/dev/null; then
+  pass 'nopCommerce NPL 4.0 reference boundary documented'
+else
+  block 'nopCommerce reference licensing boundary is incomplete'
 fi
 
 if grep -Fq 'GitHub Private Vulnerability Reporting' SECURITY.md 2>/dev/null; then
@@ -65,7 +77,7 @@ fi
 
 external 'Smoke Windows x64 and macOS release binaries on their native OSes'
 external 'Have someone other than the author reproduce the clean Quick Start / first useful PASS/FAIL'
-manual 'Resolve the explicit NPL 4.0 license/notice treatment for reference/nopcommerce/'
+manual 'Re-check then-current nopCommerce NPL 4.0 terms before redistributing any combined/derived reference artifact'
 manual 'Perform final trademark/name review in the official dynamic trademark databases'
 manual 'After repository visibility changes, enable GitHub Private Vulnerability Reporting and verify the Report a vulnerability button before announcing a release'
 

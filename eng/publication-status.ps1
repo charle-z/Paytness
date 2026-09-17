@@ -10,18 +10,21 @@ function Manual([string]$m) { Write-Host "[MANUAL] $m" }
 
 Write-Host 'Paytness publication preflight'
 Write-Host ''
-foreach ($required in @('README.md','SECURITY.md','CONTRIBUTING.md','THIRD_PARTY_NOTICES.md','docs/PUBLICATION-CHECKLIST.md','docs/DISTRIBUTION.md')) {
+foreach ($required in @('README.md','SECURITY.md','CONTRIBUTING.md','LICENSE','LICENSING.md','THIRD_PARTY_NOTICES.md','reference/nopcommerce/LICENSING.md','docs/PUBLICATION-CHECKLIST.md','docs/DISTRIBUTION.md')) {
     if (Test-Path $required -PathType Leaf) { Pass "$required present" } else { Block "$required missing" }
 }
-if (Test-Path 'LICENSE' -PathType Leaf) { Pass 'LICENSE present' } else { Block 'LICENSE missing: choose the Paytness core license before publication' }
+if ((Test-Path 'LICENSE' -PathType Leaf) -and ((Get-Content LICENSE -Raw) -match 'Apache License') -and ((Get-Content LICENSE -Raw) -match 'Version 2.0')) { Pass 'Apache-2.0 LICENSE present' } else { Block 'LICENSE is missing or is not Apache License 2.0' }
 
 try {
     $licenseExpr = (& dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:PackageLicenseExpression).Trim()
     $licenseFile = (& dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:PackageLicenseFile).Trim()
     $repoUrl = (& dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:RepositoryUrl).Trim()
-    if ($licenseExpr -or $licenseFile) { Pass 'NuGet license metadata present' } else { Block 'NuGet license metadata missing' }
+    if ($licenseExpr -eq 'Apache-2.0') { Pass 'NuGet license metadata is Apache-2.0' } else { Block "unexpected NuGet license metadata: $licenseExpr" }
     if ($repoUrl -eq 'https://github.com/charle-z/paytness') { Pass 'NuGet RepositoryUrl matches owner-bound repository' } else { Block "unexpected RepositoryUrl: $repoUrl" }
 } catch { Block '.NET SDK unavailable: cannot inspect package metadata' }
+
+if ((Get-Content Dockerfile -Raw) -match 'org.opencontainers.image.licenses="Apache-2.0"') { Pass 'OCI license metadata is Apache-2.0' } else { Block 'OCI license metadata is not Apache-2.0' }
+if (((Get-Content reference/nopcommerce/LICENSING.md -Raw) -match 'NPL 4.0') -and ((Get-Content reference/nopcommerce/LICENSING.md -Raw) -match 'does \*\*not\*\* publish a prebuilt nopCommerce-derived image')) { Pass 'nopCommerce NPL 4.0 reference boundary documented' } else { Block 'nopCommerce reference licensing boundary is incomplete' }
 
 if ((Get-Content SECURITY.md -Raw) -match 'GitHub Private Vulnerability Reporting') { Pass 'SECURITY.md defines the private disclosure launch path' } else { Block 'SECURITY.md does not define GitHub Private Vulnerability Reporting' }
 if ((Test-Path '.github/workflows') -and (Get-ChildItem '.github/workflows' -File -ErrorAction SilentlyContinue | Select-Object -First 1)) { Info 'active GitHub workflows are present; verify Actions budget posture intentionally' } else { Pass 'repository workflows remain inactive in pre-alpha' }
@@ -34,7 +37,7 @@ if ($compose) { Pass 'Docker Compose available for real-SUT gate' } else { Exter
 if ($buildx) { Pass 'Docker Buildx available for multiarch OCI gate' } else { External 'Docker Buildx unavailable here: run amd64/arm64 OCI + Trivy on a normal release host' }
 External 'Smoke Windows x64 and macOS release binaries on their native OSes'
 External 'Have someone other than the author reproduce the clean Quick Start / first useful PASS/FAIL'
-Manual 'Resolve the explicit NPL 4.0 license/notice treatment for reference/nopcommerce/'
+Manual 'Re-check then-current nopCommerce NPL 4.0 terms before redistributing any combined/derived reference artifact'
 Manual 'Perform final trademark/name review in the official dynamic trademark databases'
 Manual 'After repository visibility changes, enable GitHub Private Vulnerability Reporting and verify the Report a vulnerability button before announcing a release'
 Write-Host "`nAutomated repository blockers: $blocks"

@@ -7,8 +7,10 @@ ARG REVISION=unknown
 LABEL org.opencontainers.image.title="Paytness" \
       org.opencontainers.image.description="Adversarial reliability testing for REST and webhook payment integrations" \
       org.opencontainers.image.version="$VERSION" \
-      org.opencontainers.image.revision="$REVISION"
+      org.opencontainers.image.revision="$REVISION" \
+      org.opencontainers.image.licenses="Apache-2.0"
 WORKDIR /app
 COPY app/ ./
+COPY legal/ /licenses/
 USER $APP_UID
 ENTRYPOINT ["dotnet", "paytness.dll"]

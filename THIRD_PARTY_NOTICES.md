@@ -13,12 +13,12 @@ Paytness core does not vendor or embed nopCommerce binaries in its normal CLI, N
 The Paytness reference harness does not remove upstream attribution and does not publish a prebuilt nopCommerce-derived image as a normal Paytness release artifact. Instead, the reference image is assembled locally from the official upstream image when the test harness runs.
 The test-only payment-info component also renders a visible clickable `powered by nopCommerce` attribution linking to `https://www.nopcommerce.com` as conservative license hygiene. This does not represent a legal conclusion that the component alone satisfies every NPL obligation.
 
-`reference/nopcommerce/plugin/Paytness.Reference` links to nopCommerce assemblies in order to exercise real nopCommerce payment/application behavior. The applicable licensing treatment for that test-only plugin is a **separate publication decision** and is not established by this notice. Do not assume that a future root Paytness license automatically governs that plugin or overrides nopCommerce licensing obligations.
+`reference/nopcommerce/plugin/Paytness.Reference` links to nopCommerce assemblies in order to exercise real nopCommerce payment/application behavior. Original Paytness-authored files are licensed under Apache-2.0, but that grant does not license nopCommerce itself or make a linked/combined nopCommerce plugin or derived image Apache-2.0-only. The project's conservative distribution posture is documented in `reference/nopcommerce/LICENSING.md`: build locally from pinned upstream, preserve attribution, and do not publish a prebuilt nopCommerce-derived image by default.
 
-Before public release, the repository publication checklist requires explicit review of the license/notice treatment for `reference/nopcommerce/`.
+Any future redistribution of a combined or derived nopCommerce reference artifact requires a fresh review of applicable upstream NPL 4.0 obligations.
 
 ## Other dependencies
 
 Paytness also consumes third-party .NET/NuGet dependencies. Their licenses remain governed by their respective upstream packages. Package versions are locked and dependency/security checks are part of the repository verification gates.
 
-This file is an attribution and dependency-boundary notice; it is not a substitute for the repository's eventual `LICENSE` file and does not provide legal advice.
+This file is an attribution and dependency-boundary notice. Paytness's Apache-2.0 license is in `LICENSE`; scope and the nopCommerce boundary are described in `LICENSING.md`. This notice does not provide legal advice.

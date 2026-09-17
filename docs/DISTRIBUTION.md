@@ -18,7 +18,7 @@ This publishes and verifies one self-contained file for each supported RID:
 - `osx-x64`
 - `osx-arm64`
 
-The script uses an isolated NuGet lock per RID under `.artifacts`, asserts that the canonical project lock hash is unchanged, and smokes both the Linux x64 binary and the locally installed .NET tool from an isolated working directory containing only a minimal ScenarioSpec + ProviderContract. It then creates deterministic `.tar.gz` archives, builds the NuGet package with a deterministic timestamp derived from the Git commit, and regenerates `SHA256SUMS`.
+The script uses an isolated NuGet lock per RID under `.artifacts`, asserts that the canonical project lock hash is unchanged, and smokes both the Linux x64 binary and the locally installed .NET tool from an isolated working directory containing only a minimal ScenarioSpec + ProviderContract. Each release archive carries the executable plus `LICENSE`, `LICENSING.md` and `THIRD_PARTY_NOTICES.md`. It then creates deterministic `.tar.gz` archives, builds the NuGet package with the same legal files and a deterministic timestamp derived from the Git commit, and regenerates `SHA256SUMS`.
 
 Release artifacts are written below `dist/v<version>/` and are intentionally ignored by Git.
 
@@ -47,7 +47,7 @@ With Docker Buildx:
 ./eng/package-oci.sh
 ```
 
-The script first exports a Linux amd64/arm64 **OCI Image Layout directory** with `tar=false`, derives `SOURCE_DATE_EPOCH` from the Git commit, and asks the OCI exporter to rewrite layer timestamps. Pinned Trivy scans that layout separately for `linux/amd64` and `linux/arm64`; only after both HIGH/CRITICAL scans pass does the script create the deterministic `.oci.tar` release artifact and regenerate checksums.
+The OCI image declares `org.opencontainers.image.licenses=Apache-2.0` and embeds the Apache license plus Paytness licensing/third-party notices under `/licenses`. The script first exports a Linux amd64/arm64 **OCI Image Layout directory** with `tar=false`, derives `SOURCE_DATE_EPOCH` from the Git commit, and asks the OCI exporter to rewrite layer timestamps. Pinned Trivy scans that layout separately for `linux/amd64` and `linux/arm64`; only after both HIGH/CRITICAL scans pass does the script create the deterministic `.oci.tar` release artifact and regenerate checksums.
 
 The runtime-only Dockerfile can be built inside the nested Devbox toolbox because it has no `RUN` instructions. Devbox cannot execute the resulting image under its declared non-root UID because the parent sandbox exposes only a single UID/GID mapping; that is a harness limitation. The payload can be smoke-run with a user override, while the declared non-root image and complete amd64/arm64 Buildx + Trivy path remain publication gates on a normal Docker host.
 

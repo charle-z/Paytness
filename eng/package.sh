@@ -52,8 +52,13 @@ for rid in $RIDS; do
   count=$(find "$out" -maxdepth 1 -type f | wc -l)
   [ "$count" -eq 1 ] || { echo "$rid did not publish as exactly one file." >&2; exit 1; }
 
+  bundle="$PUBLISH_ROOT/bundle-$rid"
+  rm -rf "$bundle"
+  mkdir -p "$bundle"
+  cp -p "$out"/* "$bundle/"
+  cp LICENSE LICENSING.md THIRD_PARTY_NOTICES.md "$bundle/"
   archive="$DIST/paytness-$VERSION-$rid.tar.gz"
-  tar --sort=name --mtime="@$BUILD_EPOCH" --owner=0 --group=0 --numeric-owner -cf - -C "$out" . \
+  tar --sort=name --mtime="@$BUILD_EPOCH" --owner=0 --group=0 --numeric-owner -cf - -C "$bundle" . \
     | gzip -n > "$archive"
 done
 

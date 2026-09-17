@@ -13,7 +13,9 @@ REVISION=$(git rev-parse HEAD)
 
 CONTEXT="$ROOT/.artifacts/oci-context"
 rm -rf "$CONTEXT"
-mkdir -p "$CONTEXT/app"
+mkdir -p "$CONTEXT/app" "$CONTEXT/legal"
+cp LICENSE "$CONTEXT/legal/Apache-2.0.txt"
+cp LICENSING.md THIRD_PARTY_NOTICES.md "$CONTEXT/legal/"
 
 export SOURCE_DATE_EPOCH="$BUILD_EPOCH"
 dotnet restore src/Paytness/Paytness.csproj --locked-mode >/dev/null
@@ -25,6 +27,6 @@ dotnet publish src/Paytness/Paytness.csproj -c Release --no-restore --self-conta
 
 # BuildKit rewrites layer timestamps from SOURCE_DATE_EPOCH. Normalizing the
 # staged payload too keeps local/non-BuildKit inspection deterministic.
-find "$CONTEXT/app" -type f -exec touch -d "@$BUILD_EPOCH" {} +
+find "$CONTEXT" -type f -exec touch -d "@$BUILD_EPOCH" {} +
 
 printf 'context=%s\nversion=%s\nrevision=%s\nepoch=%s\n' "$CONTEXT" "$VERSION" "$REVISION" "$BUILD_EPOCH"

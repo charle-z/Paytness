@@ -7,17 +7,18 @@ Use `./eng/publication-status.sh` for a cheap aggregate preflight; it reports al
 ## Identity and legal
 
 - [ ] Re-check `Paytness` name across relevant software/package/repository/trademark channels close to publication date.
-- [ ] Select an open-source license deliberately for Paytness core and add the exact `LICENSE` file.
-- [ ] Resolve the separate license/notice posture for `reference/nopcommerce/` under nopCommerce NPL 4.0; do not assume the root license covers the plugin.
-- [ ] Confirm no prebuilt nopCommerce-derived reference image is being published unless all NPL obligations have been explicitly reviewed and satisfied.
-- [ ] Review `THIRD_PARTY_NOTICES.md` and confirm it matches the exact reference version/license boundary.
-- [ ] Add the chosen license metadata to NuGet/OCI only after the license decision is made.
+- [x] Paytness core license selected as Apache-2.0; canonical text is in `LICENSE`.
+- [x] nopCommerce reference boundary documented in `reference/nopcommerce/LICENSING.md`: Paytness-authored files are Apache-2.0, but combined/derived nopCommerce artifacts are not treated as Apache-2.0-only.
+- [x] Default release automation does not publish a prebuilt nopCommerce-derived reference image.
+- [x] `THIRD_PARTY_NOTICES.md` records nopCommerce 4.90.8 / NPL 4.0 and the separate reference boundary.
+- [x] NuGet and OCI metadata declare `Apache-2.0`; normal release payloads carry the license text.
 - [ ] Choose the first public prerelease version/tag (for example an alpha) and make package/binary/image versions match.
 
 ## Security and repository hygiene
 
 - [ ] Review the entire to-be-published tree for secrets, internal paths, credentials and private infrastructure references.
 - [ ] Review Git history before the first push/public visibility change; do not assume current working-tree cleanliness proves history safety.
+- [ ] Re-check then-current nopCommerce NPL 4.0 terms before redistributing any combined/derived reference artifact; local-only reference builds remain the default.
 - [ ] Confirm generated `.artifacts/`, `dist/`, nopCommerce DLL refs and local toolbox state are ignored.
 - [ ] Re-run `SECURITY.md`/threat-boundary review.
 - [ ] Confirm reference-only settings/plugin cannot be mistaken for production guidance.

@@ -22,9 +22,12 @@ require_file CONTRIBUTING.md
 require_file docs/PUBLICATION-CHECKLIST.md
 require_file docs/DISTRIBUTION.md
 require_file THIRD_PARTY_NOTICES.md
+require_file LICENSING.md
+require_file reference/nopcommerce/LICENSING.md
 LICENSE_EXPR=$(dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:PackageLicenseExpression)
-LICENSE_FILE=$(dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:PackageLicenseFile)
-[ -n "$LICENSE_EXPR" ] || [ -n "$LICENSE_FILE" ] || fail "NuGet license metadata is missing (PackageLicenseExpression/PackageLicenseFile)"
+[ "$LICENSE_EXPR" = "Apache-2.0" ] || fail "NuGet PackageLicenseExpression must be Apache-2.0"
+grep -Fq 'org.opencontainers.image.licenses="Apache-2.0"' Dockerfile || fail "OCI license metadata must be Apache-2.0"
+grep -Fq 'NPL 4.0' reference/nopcommerce/LICENSING.md || fail "nopCommerce licensing boundary must document NPL 4.0"
 
 echo "[publish 2/11] ignored local/generated state"
 for path in \
