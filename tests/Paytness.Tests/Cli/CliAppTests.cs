@@ -50,4 +50,18 @@ public sealed class CliAppTests
             if (File.Exists(reportPath)) File.Delete(reportPath);
         }
     }
+    [Fact]
+    public async Task RootInvocationReturns130WhenCancellationIsAlreadyRequested()
+    {
+        RootCommand root = CliApp.Build();
+        ParseResult parse = root.Parse(["validate", TestPaths.Scenario("healthy.yaml")]);
+        Assert.Empty(parse.Errors);
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+
+        int exitCode = await CliProcess.InvokeAsync(parse, cancellation.Token);
+
+        Assert.Equal(130, exitCode);
+    }
+
 }

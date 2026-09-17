@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using Paytness.Cli;
 
@@ -15,4 +14,18 @@ if (parseResult.Errors.Count > 0)
     return 2;
 }
 
-return await parseResult.InvokeAsync(new InvocationConfiguration(), CancellationToken.None);
+using var cancellation = new CancellationTokenSource();
+ConsoleCancelEventHandler cancelHandler = (_, eventArgs) =>
+{
+    eventArgs.Cancel = true;
+    cancellation.Cancel();
+};
+Console.CancelKeyPress += cancelHandler;
+try
+{
+    return await CliProcess.InvokeAsync(parseResult, cancellation.Token);
+}
+finally
+{
+    Console.CancelKeyPress -= cancelHandler;
+}
