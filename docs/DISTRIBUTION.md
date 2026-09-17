@@ -18,7 +18,7 @@ This publishes and verifies one self-contained file for each supported RID:
 - `osx-x64`
 - `osx-arm64`
 
-The script uses an isolated NuGet lock per RID under `.artifacts`, asserts that the canonical project lock hash is unchanged, smokes the Linux x64 binary, builds/installs/smokes the .NET tool, creates deterministic `.tar.gz` archives, builds the NuGet package with a deterministic timestamp derived from the Git commit, and regenerates `SHA256SUMS`.
+The script uses an isolated NuGet lock per RID under `.artifacts`, asserts that the canonical project lock hash is unchanged, and smokes both the Linux x64 binary and the locally installed .NET tool from an isolated working directory containing only a minimal ScenarioSpec + ProviderContract. It then creates deterministic `.tar.gz` archives, builds the NuGet package with a deterministic timestamp derived from the Git commit, and regenerates `SHA256SUMS`.
 
 Release artifacts are written below `dist/v<version>/` and are intentionally ignored by Git.
 

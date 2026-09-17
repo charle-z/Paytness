@@ -17,11 +17,12 @@ DIST="$ROOT/dist/v$VERSION"
 PUBLISH_ROOT="$ROOT/.artifacts/publish"
 LOCK_ROOT="$ROOT/.artifacts/rid-locks"
 TOOL_ROOT="$ROOT/.artifacts/tool-smoke"
+SMOKE_ROOT="$ROOT/.artifacts/package-smoke"
 CANONICAL_LOCK="$ROOT/src/Paytness/packages.lock.json"
 RIDS="linux-x64 linux-arm64 win-x64 osx-x64 osx-arm64"
 
-rm -rf "$DIST" "$PUBLISH_ROOT" "$LOCK_ROOT" "$TOOL_ROOT"
-mkdir -p "$DIST" "$PUBLISH_ROOT" "$LOCK_ROOT" "$TOOL_ROOT"
+rm -rf "$DIST" "$PUBLISH_ROOT" "$LOCK_ROOT" "$TOOL_ROOT" "$SMOKE_ROOT"
+mkdir -p "$DIST" "$PUBLISH_ROOT" "$LOCK_ROOT" "$TOOL_ROOT" "$SMOKE_ROOT"
 
 canonical_before=$(sha256sum "$CANONICAL_LOCK" | awk '{print $1}')
 
@@ -62,9 +63,19 @@ canonical_after=$(sha256sum "$CANONICAL_LOCK" | awk '{print $1}')
   exit 1
 }
 
-echo "[package] smoke linux-x64"
-"$PUBLISH_ROOT/linux-x64/paytness" --version | grep -Fx "$VERSION" >/dev/null
-"$PUBLISH_ROOT/linux-x64/paytness" validate scenarios/healthy.yaml >/dev/null
+cat > "$SMOKE_ROOT/contract.json" <<'JSON'
+{"version":1}
+JSON
+cat > "$SMOKE_ROOT/scenario.json" <<'JSON'
+{"version":1,"id":"isolated-package-smoke","contract":"contract.json","provider":{"responseModes":["deliver"]}}
+JSON
+
+echo "[package] smoke linux-x64 in isolated directory"
+(
+  cd "$SMOKE_ROOT"
+  "$PUBLISH_ROOT/linux-x64/paytness" --version | grep -Fx "$VERSION" >/dev/null
+  "$PUBLISH_ROOT/linux-x64/paytness" validate scenario.json >/dev/null
+)
 
 echo "[package] NuGet tool"
 NUGET_DIR="$DIST/nuget"
@@ -83,8 +94,11 @@ cat > "$TOOL_ROOT/NuGet.Config" <<CONFIG
 CONFIG
 
 dotnet tool install --tool-path "$TOOL_ROOT/install" Paytness --version "$VERSION" --configfile "$TOOL_ROOT/NuGet.Config" >/dev/null
-"$TOOL_ROOT/install/paytness" --version | grep -Fx "$VERSION" >/dev/null
-"$TOOL_ROOT/install/paytness" validate scenarios/healthy.yaml >/dev/null
+(
+  cd "$SMOKE_ROOT"
+  "$TOOL_ROOT/install/paytness" --version | grep -Fx "$VERSION" >/dev/null
+  "$TOOL_ROOT/install/paytness" validate scenario.json >/dev/null
+)
 
 (
   cd "$DIST"
