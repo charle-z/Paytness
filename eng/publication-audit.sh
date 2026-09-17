@@ -32,6 +32,7 @@ grep -Fq 'NPL 4.0' reference/nopcommerce/LICENSING.md || fail "nopCommerce licen
 echo "[publish 2/11] ignored local/generated state"
 for path in \
   .artifacts/publication-probe \
+  .agent-memory/publication-probe \
   .local/publication-probe \
   dist/publication-probe \
   reference/nopcommerce/.refs/publication-probe.dll \
@@ -62,7 +63,7 @@ rm -rf "$STAGE"
 mkdir -p "$STAGE"
 git ls-files --cached --others --exclude-standard -z | tar --null -T - -cf - | tar -C "$STAGE" -xf -
 
-internal_hits=$(grep -RInE 'parrot-flugel|/runtime/home|/workspace/|\.mcp-devbox/' "$STAGE" --exclude='publication-audit.sh' 2>/dev/null || true)
+internal_hits=$(grep -RInE '/runtime/home/|/workspace/|/home/[^/[:space:]]+/|[A-Za-z]:\\Users\\[^\\[:space:]]+' "$STAGE" --exclude='publication-audit.sh' 2>/dev/null || true)
 [ -z "$internal_hits" ] || {
   printf '%s\n' "$internal_hits" >&2
   fail "private development-environment references remain in publication files"
@@ -89,5 +90,5 @@ echo "[publish 10/11] real nopCommerce reference"
 echo "[publish 11/11] OCI multiarch + Trivy"
 ./eng/package-oci.sh
 
-echo "Automatable publication gates passed."
-echo "Human blocking items in docs/PUBLICATION-CHECKLIST.md still require explicit review before changing visibility or publishing packages."
+echo "Automatable first-alpha release gates passed."
+echo "Source visibility and first-alpha release have separate human gates in docs/PUBLICATION-CHECKLIST.md."

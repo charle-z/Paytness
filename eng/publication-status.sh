@@ -8,10 +8,10 @@ blocks=0
 pass() { printf '[PASS] %s\n' "$*"; }
 block() { printf '[BLOCK] %s\n' "$*"; blocks=$((blocks + 1)); }
 info() { printf '[INFO] %s\n' "$*"; }
-external() { printf '[EXTERNAL] %s\n' "$*"; }
+alpha() { printf '[ALPHA] %s\n' "$*"; }
 manual() { printf '[MANUAL] %s\n' "$*"; }
 
-printf 'Paytness publication preflight\n\n'
+printf 'Paytness public-source preview preflight\n\n'
 
 for required in README.md SECURITY.md CONTRIBUTING.md LICENSE LICENSING.md THIRD_PARTY_NOTICES.md reference/nopcommerce/LICENSING.md docs/PUBLICATION-CHECKLIST.md docs/DISTRIBUTION.md; do
   if [ -f "$required" ]; then pass "$required present"; else block "$required missing"; fi
@@ -64,25 +64,25 @@ else
 fi
 
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
-  pass 'Docker Compose available for real-SUT gate'
+  alpha 'Docker Compose available for the first-alpha real-SUT gate'
 else
-  external 'Docker Compose unavailable here: run the full nopCommerce gate on a normal Docker host'
+  alpha 'Docker Compose unavailable here; first packaged alpha still requires the full nopCommerce gate on a normal Docker host'
 fi
 
 if command -v docker >/dev/null 2>&1 && docker buildx version >/dev/null 2>&1; then
-  pass 'Docker Buildx available for multiarch OCI gate'
+  alpha 'Docker Buildx available for the first-alpha multiarch OCI gate'
 else
-  external 'Docker Buildx unavailable here: run amd64/arm64 OCI + Trivy on a normal release host'
+  alpha 'Docker Buildx unavailable here; first packaged alpha still requires amd64/arm64 OCI + Trivy on a normal release host'
 fi
 
-external 'Smoke Windows x64 and macOS release binaries on their native OSes'
-external 'Have someone other than the author reproduce the clean Quick Start / first useful PASS/FAIL'
-manual 'Re-check then-current nopCommerce NPL 4.0 terms before redistributing any combined/derived reference artifact'
-manual 'Perform final trademark/name review in the official dynamic trademark databases'
-manual 'After repository visibility changes, enable GitHub Private Vulnerability Reporting and verify the Report a vulnerability button before announcing a release'
+alpha 'Smoke native release binaries before advertising their first packaged alpha surfaces'
+alpha 'Have someone other than the author attempt the clean Quick Start before the first packaged alpha'
+alpha 'Re-check then-current nopCommerce NPL 4.0 terms before redistributing any combined/derived reference artifact'
+manual 'Complete the official trademark-database screen before changing repository visibility'
+manual 'After repository visibility changes, immediately enable GitHub Private Vulnerability Reporting and verify Report a vulnerability before announcing the source preview'
 
-printf '\nAutomated repository blockers: %s\n' "$blocks"
+printf '\nAutomated source-preview blockers: %s\n' "$blocks"
 if [ "$blocks" -ne 0 ]; then
   exit 1
 fi
-printf 'Repository-local preflight is clear; external/manual publication gates still apply.\n'
+printf 'Repository-local source-preview preflight is clear; MANUAL visibility checks and ALPHA release gates still apply.\n'

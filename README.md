@@ -1,5 +1,7 @@
 # Paytness
 
+> **Status:** pre-alpha. Public source visibility is separate from the first packaged release; no stable Paytness version or public package is supported yet.
+
 Paytness is a local/CI adversarial test runner for REST + webhook payment integrations. Its core question is simple: **does one logical payment intent still produce exactly one economic effect and converge to the correct state when transport becomes unreliable?**
 
 Paytness separates provider-side semantic commit from HTTP delivery, so it can reproduce failures that a normal happy-path sandbox usually misses.

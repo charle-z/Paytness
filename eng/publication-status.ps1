@@ -5,10 +5,10 @@ $blocks = 0
 function Pass([string]$m) { Write-Host "[PASS] $m" }
 function Block([string]$m) { Write-Host "[BLOCK] $m"; $script:blocks++ }
 function Info([string]$m) { Write-Host "[INFO] $m" }
-function External([string]$m) { Write-Host "[EXTERNAL] $m" }
+function Alpha([string]$m) { Write-Host "[ALPHA] $m" }
 function Manual([string]$m) { Write-Host "[MANUAL] $m" }
 
-Write-Host 'Paytness publication preflight'
+Write-Host 'Paytness public-source preview preflight'
 Write-Host ''
 foreach ($required in @('README.md','SECURITY.md','CONTRIBUTING.md','LICENSE','LICENSING.md','THIRD_PARTY_NOTICES.md','reference/nopcommerce/LICENSING.md','docs/PUBLICATION-CHECKLIST.md','docs/DISTRIBUTION.md')) {
     if (Test-Path $required -PathType Leaf) { Pass "$required present" } else { Block "$required missing" }
@@ -33,13 +33,13 @@ if (-not (git status --porcelain)) { Pass 'Git working tree is clean' } else { I
 $compose = $false; $buildx = $false
 try { docker compose version *> $null; $compose = $LASTEXITCODE -eq 0 } catch {}
 try { docker buildx version *> $null; $buildx = $LASTEXITCODE -eq 0 } catch {}
-if ($compose) { Pass 'Docker Compose available for real-SUT gate' } else { External 'Docker Compose unavailable here: run the full nopCommerce gate on a normal Docker host' }
-if ($buildx) { Pass 'Docker Buildx available for multiarch OCI gate' } else { External 'Docker Buildx unavailable here: run amd64/arm64 OCI + Trivy on a normal release host' }
-External 'Smoke Windows x64 and macOS release binaries on their native OSes'
-External 'Have someone other than the author reproduce the clean Quick Start / first useful PASS/FAIL'
-Manual 'Re-check then-current nopCommerce NPL 4.0 terms before redistributing any combined/derived reference artifact'
-Manual 'Perform final trademark/name review in the official dynamic trademark databases'
-Manual 'After repository visibility changes, enable GitHub Private Vulnerability Reporting and verify the Report a vulnerability button before announcing a release'
-Write-Host "`nAutomated repository blockers: $blocks"
+if ($compose) { Alpha 'Docker Compose available for the first-alpha real-SUT gate' } else { Alpha 'Docker Compose unavailable here; first packaged alpha still requires the full nopCommerce gate on a normal Docker host' }
+if ($buildx) { Alpha 'Docker Buildx available for the first-alpha multiarch OCI gate' } else { Alpha 'Docker Buildx unavailable here; first packaged alpha still requires amd64/arm64 OCI + Trivy on a normal release host' }
+Alpha 'Smoke native release binaries before advertising their first packaged alpha surfaces'
+Alpha 'Have someone other than the author attempt the clean Quick Start before the first packaged alpha'
+Alpha 'Re-check then-current nopCommerce NPL 4.0 terms before redistributing any combined/derived reference artifact'
+Manual 'Complete the official trademark-database screen before changing repository visibility'
+Manual 'After repository visibility changes, immediately enable GitHub Private Vulnerability Reporting and verify Report a vulnerability before announcing the source preview'
+Write-Host "`nAutomated source-preview blockers: $blocks"
 if ($blocks -ne 0) { exit 1 }
-Write-Host 'Repository-local preflight is clear; external/manual publication gates still apply.'
+Write-Host 'Repository-local source-preview preflight is clear; MANUAL visibility checks and ALPHA release gates still apply.'
