@@ -9,6 +9,9 @@ mkdir -p "$DOTNET_CLI_HOME"
 
 VERSION=$(dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:Version)
 [ -n "$VERSION" ] || { echo "Could not resolve Paytness version." >&2; exit 2; }
+BUILD_EPOCH=$(git log -1 --format=%ct)
+[ -n "$BUILD_EPOCH" ] || { echo "Packaging requires a Git commit timestamp." >&2; exit 2; }
+export SOURCE_DATE_EPOCH="$BUILD_EPOCH"
 
 DIST="$ROOT/dist/v$VERSION"
 PUBLISH_ROOT="$ROOT/.artifacts/publish"
@@ -49,7 +52,8 @@ for rid in $RIDS; do
   [ "$count" -eq 1 ] || { echo "$rid did not publish as exactly one file." >&2; exit 1; }
 
   archive="$DIST/paytness-$VERSION-$rid.tar.gz"
-  tar -czf "$archive" -C "$out" .
+  tar --sort=name --mtime="@$BUILD_EPOCH" --owner=0 --group=0 --numeric-owner -cf - -C "$out" . \
+    | gzip -n > "$archive"
 done
 
 canonical_after=$(sha256sum "$CANONICAL_LOCK" | awk '{print $1}')
@@ -65,7 +69,8 @@ echo "[package] smoke linux-x64"
 echo "[package] NuGet tool"
 NUGET_DIR="$DIST/nuget"
 mkdir -p "$NUGET_DIR"
-dotnet pack src/Paytness/Paytness.csproj -c Release --no-restore -o "$NUGET_DIR" >/dev/null
+dotnet pack src/Paytness/Paytness.csproj -c Release --no-restore -o "$NUGET_DIR" \
+  -p:Deterministic=true -p:DeterministicTimestamp="$BUILD_EPOCH" >/dev/null
 
 cat > "$TOOL_ROOT/NuGet.Config" <<CONFIG
 <?xml version="1.0" encoding="utf-8"?>

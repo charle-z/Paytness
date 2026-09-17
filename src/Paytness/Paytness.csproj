@@ -6,6 +6,7 @@
     <AssemblyName>paytness</AssemblyName>
     <RootNamespace>Paytness</RootNamespace>
     <Version>0.1.0</Version>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <PackAsTool>true</PackAsTool>
     <IsPackable>true</IsPackable>
     <ToolCommandName>paytness</ToolCommandName>

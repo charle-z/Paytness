@@ -62,3 +62,7 @@ Required result:
 - the database/stack is recreated for mutation gates so previous runs cannot mask defects.
 
 The fast `eng/verify.*` gate must remain usable without Docker. CI should keep these as separate jobs rather than making every edit pay the real-SUT startup cost.
+
+## Reproducible release artifacts
+
+`./eng/package-repro-check.sh` must produce identical SHA-256 manifests across two complete packaging runs of the same Git commit. The build epoch is derived from the commit timestamp; archives normalize order, timestamps and ownership, and NuGet uses deterministic package timestamps.

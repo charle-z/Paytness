@@ -70,8 +70,8 @@ echo "[publish 6/10] secret scan"
 echo "[publish 7/10] fast product gate"
 ./eng/verify.sh
 
-echo "[publish 8/10] binaries + NuGet"
-./eng/package.sh
+echo "[publish 8/10] reproducible binaries + NuGet"
+./eng/package-repro-check.sh
 
 echo "[publish 9/10] real nopCommerce reference"
 ./reference/nopcommerce/run.sh

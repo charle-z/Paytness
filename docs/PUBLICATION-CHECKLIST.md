@@ -23,7 +23,7 @@ This checklist is intentionally blocking. A green local build is not authorizati
 - [ ] `./reference/nopcommerce/run.sh` PASS on a normal Docker + Compose host, not only the nested Devbox workaround.
 - [ ] NOP-01..07 PASS from a fresh reference stack.
 - [ ] `unstable-idempotency` and `accept-stale-state` mutation gates FAIL for the required reasons.
-- [ ] `./eng/package.sh` PASS and `SHA256SUMS` verified.
+- [ ] `./eng/package-repro-check.sh` PASS: two consecutive builds of the same commit produce identical `SHA256SUMS`.
 - [ ] Smoke at least Linux x64 and Windows x64 release binaries on their native OSes.
 - [ ] `./eng/package-oci.sh` PASS with Linux amd64+arm64 OCI output on normal Docker Buildx.
 - [ ] Run an image vulnerability scan with the release-candidate image and record the scanner/version/result.
