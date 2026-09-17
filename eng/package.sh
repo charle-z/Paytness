@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 
 export DOTNET_CLI_HOME="${DOTNET_CLI_HOME:-$ROOT/.artifacts/dotnet-home}"
@@ -88,7 +88,9 @@ dotnet tool install --tool-path "$TOOL_ROOT/install" Paytness --version "$VERSIO
 
 (
   cd "$DIST"
-  find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+  manifest=$(mktemp)
+  find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > "$manifest"
+  mv "$manifest" SHA256SUMS
 )
 
 printf 'Paytness %s packaging passed.\nArtifacts: %s\n' "$VERSION" "$DIST"

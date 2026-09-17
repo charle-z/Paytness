@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 
 TRIVY_VERSION=0.74.0
@@ -64,10 +64,10 @@ scan_platform() {
   code=$?
   set -e
   if [ "$code" -ne 0 ]; then
-    echo "Trivy blocked $platform. Review: ${report#$ROOT/}" >&2
+    echo "Trivy blocked $platform. Review: ${report#"$ROOT"/}" >&2
     return "$code"
   fi
-  echo "[trivy] $platform passed. Report: ${report#$ROOT/}"
+  echo "[trivy] $platform passed. Report: ${report#"$ROOT"/}"
 }
 
 amd64=0

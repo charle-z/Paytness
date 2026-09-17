@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 
 fail() {
@@ -29,7 +29,8 @@ ACTION_SDK=$(awk '/dotnet-version:/{gsub(/[\047\042]/, "", $2); print $2; exit}'
 
 grep -Fq "ARG VERSION=$VERSION" Dockerfile || fail "root Dockerfile VERSION default is not $VERSION"
 grep -Fq "dotnet/aspnet:10.0.12" Dockerfile || fail "root Dockerfile runtime is not pinned to ASP.NET Core 10.0.12"
-grep -Fq 'USER $APP_UID' Dockerfile || fail "root Dockerfile does not enforce the non-root runtime user"
+expected_runtime_user="USER \$APP_UID"
+grep -Fq "$expected_runtime_user" Dockerfile || fail "root Dockerfile does not enforce the non-root runtime user"
 if grep -Eq '^[[:space:]]*RUN[[:space:]]' Dockerfile; then fail "root Dockerfile must remain runtime-only and contain no RUN instructions"; fi
 grep -Fq "SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:$SDK_VERSION" reference/nopcommerce/build-images.sh || fail "reference build-images SDK does not match global.json"
 grep -Fq 'nopcommerceteam/nopcommerce:4.90.8' reference/nopcommerce/Dockerfile.nopcommerce || fail "nopCommerce reference image is not pinned to 4.90.8"

@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 
 if ! command -v docker >/dev/null 2>&1 || ! docker buildx version >/dev/null 2>&1; then
@@ -38,7 +38,9 @@ rm -rf "$LAYOUT"
 
 (
   cd "$DIST"
-  find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+  manifest=$(mktemp)
+  find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > "$manifest"
+  mv "$manifest" SHA256SUMS
 )
 
 printf 'Paytness %s OCI multiarch artifact and vulnerability scan passed: %s\n' "$VERSION" "$OUT"

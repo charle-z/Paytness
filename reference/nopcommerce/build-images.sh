@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
-HERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-ROOT=$(CDPATH= cd -- "$HERE/../.." && pwd)
+HERE=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+ROOT=$(CDPATH='' cd -- "$HERE/../.." && pwd)
 CLI=${PAYTNESS_CONTAINER_CLI:-docker}
 SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0.401
 NOPCOMMERCE_IMAGE=nopcommerceteam/nopcommerce:4.90.8

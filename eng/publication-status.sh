@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 set -u
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-cd "$ROOT"
+ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
+cd "$ROOT" || { echo "Cannot enter repository root: $ROOT" >&2; exit 2; }
 
 blocks=0
 pass() { printf '[PASS] %s\n' "$*"; }
