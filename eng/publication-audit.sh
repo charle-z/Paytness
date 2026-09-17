@@ -22,6 +22,9 @@ require_file CONTRIBUTING.md
 require_file docs/PUBLICATION-CHECKLIST.md
 require_file docs/DISTRIBUTION.md
 require_file THIRD_PARTY_NOTICES.md
+LICENSE_EXPR=$(dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:PackageLicenseExpression)
+LICENSE_FILE=$(dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:PackageLicenseFile)
+[ -n "$LICENSE_EXPR" ] || [ -n "$LICENSE_FILE" ] || fail "NuGet license metadata is missing (PackageLicenseExpression/PackageLicenseFile)"
 
 echo "[publish 2/11] ignored local/generated state"
 for path in \

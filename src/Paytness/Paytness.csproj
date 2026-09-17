@@ -14,6 +14,9 @@
     <Authors>Paytness contributors</Authors>
     <Description>Adversarial reliability testing for REST and webhook payment integrations.</Description>
     <PackageTags>payments;testing;reliability;idempotency;webhooks</PackageTags>
+    <PackageProjectUrl>https://github.com/charle-z/paytness</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/charle-z/paytness</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Nullable>enable</Nullable>

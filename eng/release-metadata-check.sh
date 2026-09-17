@@ -11,12 +11,18 @@ fail() {
 
 VERSION=$(dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:Version)
 PACKAGE_ID=$(dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:PackageId)
+REPOSITORY_URL=$(dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:RepositoryUrl)
+PROJECT_URL=$(dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:PackageProjectUrl)
+REPOSITORY_TYPE=$(dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:RepositoryType)
 SDK_VERSION=$(sed -n 's/.*"version": "\([^"]*\)".*/\1/p' global.json | head -n 1)
 PLUGIN_VERSION=$(sed -n 's/.*"Version": "\([^"]*\)".*/\1/p' reference/nopcommerce/plugin/Paytness.Reference/plugin.json | head -n 1)
 ACTION_VERSION=$(awk '/^  version:/{seen=1; next} seen && /^[[:space:]]+default:/{gsub(/[\047\042]/, "", $2); print $2; exit}' action.yml)
 ACTION_SDK=$(awk '/dotnet-version:/{gsub(/[\047\042]/, "", $2); print $2; exit}' action.yml)
 
 [ "$PACKAGE_ID" = "Paytness" ] || fail "PackageId is '$PACKAGE_ID', expected 'Paytness'"
+[ "$REPOSITORY_URL" = "https://github.com/charle-z/paytness" ] || fail "RepositoryUrl is not the owner-bound Paytness repository"
+[ "$PROJECT_URL" = "$REPOSITORY_URL" ] || fail "PackageProjectUrl does not match RepositoryUrl"
+[ "$REPOSITORY_TYPE" = "git" ] || fail "RepositoryType must be git"
 [ "$ACTION_VERSION" = "$VERSION" ] || fail "action.yml version '$ACTION_VERSION' != project '$VERSION'"
 [ "$PLUGIN_VERSION" = "$VERSION" ] || fail "nopCommerce plugin '$PLUGIN_VERSION' != project '$VERSION'"
 [ "$ACTION_SDK" = "$SDK_VERSION" ] || fail "action SDK '$ACTION_SDK' != global.json '$SDK_VERSION'"
