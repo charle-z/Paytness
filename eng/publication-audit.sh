@@ -21,6 +21,7 @@ require_file SECURITY.md
 require_file CONTRIBUTING.md
 require_file docs/PUBLICATION-CHECKLIST.md
 require_file docs/DISTRIBUTION.md
+require_file THIRD_PARTY_NOTICES.md
 
 echo "[publish 2/11] ignored local/generated state"
 for path in \

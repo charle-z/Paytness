@@ -121,6 +121,7 @@ The slower real-SUT gate is separate from the fast developer loop. It requires D
 That single command is designed to build the reference images, create PostgreSQL, bootstrap nopCommerce without browser/admin-panel steps, run NOP-01..07, verify both required mutations, write JSON/JUnit artifacts under `.artifacts/nopcommerce/`, and tear everything down.
 
 See `docs/nopcommerce-reference.md` for the exact contracts, verified results, security posture, and the nested-Devbox Docker build limitation.
+Third-party licensing boundaries for the reference are recorded in `THIRD_PARTY_NOTICES.md`; the root Paytness license decision remains separate.
 
 GitHub Actions is intentionally not enabled during the private pre-alpha phase; when enabled, workflows must reuse these gates rather than maintain divergent build/test logic.
 

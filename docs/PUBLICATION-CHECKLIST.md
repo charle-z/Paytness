@@ -8,6 +8,7 @@ This checklist is intentionally blocking. A green local build is not authorizati
 - [ ] Select an open-source license deliberately for Paytness core and add the exact `LICENSE` file.
 - [ ] Resolve the separate license/notice posture for `reference/nopcommerce/` under nopCommerce NPL 4.0; do not assume the root license covers the plugin.
 - [ ] Confirm no prebuilt nopCommerce-derived reference image is being published unless all NPL obligations have been explicitly reviewed and satisfied.
+- [ ] Review `THIRD_PARTY_NOTICES.md` and confirm it matches the exact reference version/license boundary.
 - [ ] Add the chosen license metadata to NuGet/OCI only after the license decision is made.
 - [ ] Choose the first public prerelease version/tag (for example an alpha) and make package/binary/image versions match.
 
