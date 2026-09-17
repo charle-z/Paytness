@@ -28,7 +28,7 @@ trap cleanup EXIT INT TERM
 wait_ready() {
   i=0
   while [ "$i" -lt 90 ]; do
-    if dc exec -T paytness curl -fsS http://nopcommerce:8080/test/state >/dev/null 2>&1; then
+    if dc exec -T nopcommerce wget -qO- http://127.0.0.1:8080/test/state >/dev/null 2>&1; then
       return 0
     fi
     i=$((i + 1))

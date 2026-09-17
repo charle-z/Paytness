@@ -35,6 +35,8 @@ grep -Fq "SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:$SDK_VERSION" reference/nopcomm
 grep -Fq 'nopcommerceteam/nopcommerce:4.90.8' reference/nopcommerce/Dockerfile.nopcommerce || fail "nopCommerce reference image is not pinned to 4.90.8"
 grep -Fq 'powered by nopCommerce' reference/nopcommerce/plugin/Paytness.Reference/ReferencePaymentInfoViewComponent.cs || fail "nopCommerce reference UI attribution is missing"
 grep -Fq 'https://www.nopcommerce.com' reference/nopcommerce/plugin/Paytness.Reference/ReferencePaymentInfoViewComponent.cs || fail "nopCommerce reference UI attribution link is missing"
+grep -Fq 'dc exec -T nopcommerce wget -qO- http://127.0.0.1:8080/test/state' reference/nopcommerce/run.sh || fail "reference readiness probe must use upstream nopCommerce wget"
+if grep -Fq 'dc exec -T paytness curl' reference/nopcommerce/run.sh; then fail "reference runner must not depend on curl in the runtime-only Paytness image"; fi
 grep -Fq 'dotnet/aspnet:10.0.12' reference/nopcommerce/Dockerfile.paytness || fail "reference Paytness runtime is not pinned to ASP.NET Core 10.0.12"
 for file in reference/nopcommerce/Dockerfile.nopcommerce reference/nopcommerce/Dockerfile.paytness; do
   if grep -Eq '^[[:space:]]*RUN[[:space:]]' "$file"; then fail "$file must remain runtime-only and contain no RUN instructions"; fi
