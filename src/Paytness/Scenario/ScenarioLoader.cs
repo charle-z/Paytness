@@ -84,6 +84,7 @@ public static class ScenarioLoader
     {
         if (scenario.Version != 1) throw new ScenarioValidationException("ScenarioSpec version must be 1.");
         if (string.IsNullOrWhiteSpace(scenario.Id)) throw new ScenarioValidationException("Scenario id is required.");
+        if (string.IsNullOrWhiteSpace(scenario.Contract)) throw new ScenarioValidationException("Scenario contract path is required.");
         if (scenario.TimeoutSeconds is < 1 or > 300) throw new ScenarioValidationException("Scenario timeoutSeconds must be between 1 and 300.");
         if (scenario.Actions.Count > 1_000) throw new ScenarioValidationException("Scenario exceeds 1,000 actions.");
         if (scenario.Observations.Count > 500) throw new ScenarioValidationException("Scenario exceeds 500 observations.");
@@ -94,14 +95,24 @@ public static class ScenarioLoader
         int actionInvocations = 0;
         foreach (SutActionSpec action in scenario.Actions)
         {
+            if (!IsHttpMethod(action.Method)) throw new ScenarioValidationException($"Unsupported SUT action method '{action.Method}'.");
             if (!IsHttpPath(action.Path)) throw new ScenarioValidationException("SUT action paths must begin with '/'.");
             if (action.Concurrency is < 1 or > 128) throw new ScenarioValidationException("SUT action concurrency must be between 1 and 128.");
             actionInvocations += action.Concurrency;
         }
         if (actionInvocations > 1_000) throw new ScenarioValidationException("Scenario exceeds 1,000 SUT action invocations.");
-        foreach (ObservationSpec observation in scenario.Observations)
-            if (!IsHttpPath(observation.Path)) throw new ScenarioValidationException("Observation paths must begin with '/'.");
 
+        var observationIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (ObservationSpec observation in scenario.Observations)
+        {
+            if (string.IsNullOrWhiteSpace(observation.Id) || !observationIds.Add(observation.Id))
+                throw new ScenarioValidationException("Observation ids must be non-empty and unique.");
+            if (!IsHttpPath(observation.Path)) throw new ScenarioValidationException("Observation paths must begin with '/'.");
+            if (observation.TimeoutMs is < 1 or > 300_000) throw new ScenarioValidationException("Observation timeoutMs must be between 1 and 300000.");
+            if (observation.IntervalMs is < 1 or > 300_000) throw new ScenarioValidationException("Observation intervalMs must be between 1 and 300000.");
+        }
+
+        ValidateAssertions(scenario.Assertions, observationIds);
         ValidateWebhooks(scenario.Webhooks);
     }
 
@@ -139,16 +150,80 @@ public static class ScenarioLoader
     {
         if (contract.Version != 1) throw new ScenarioValidationException("ProviderContract version must be 1.");
         if (!IsHttpPath(contract.CreatePayment.Path)) throw new ScenarioValidationException("Provider createPayment.path must begin with '/'.");
-        if (contract.CreatePayment.Method is not ("GET" or "POST" or "PUT" or "PATCH" or "DELETE"))
+        if (!IsHttpMethod(contract.CreatePayment.Method))
             throw new ScenarioValidationException("Provider createPayment.method is not supported.");
-        if (string.IsNullOrWhiteSpace(contract.CreatePayment.Extract.LogicalPayment))
-            throw new ScenarioValidationException("Provider logicalPayment extraction pointer is required.");
+        if (string.IsNullOrWhiteSpace(contract.CreatePayment.Extract.LogicalPayment) || !IsJsonPointer(contract.CreatePayment.Extract.LogicalPayment))
+            throw new ScenarioValidationException("Provider logicalPayment extraction pointer must be a valid non-empty RFC 6901 JSON Pointer.");
+        if (contract.CreatePayment.Extract.AmountMinor is string amountMinor && !IsJsonPointer(amountMinor))
+            throw new ScenarioValidationException("Provider amountMinor extraction pointer must be a valid RFC 6901 JSON Pointer.");
+        if (contract.CreatePayment.Extract.Currency is string currency && !IsJsonPointer(currency))
+            throw new ScenarioValidationException("Provider currency extraction pointer must be a valid RFC 6901 JSON Pointer.");
         if (string.IsNullOrWhiteSpace(contract.Webhook.SignatureHeader))
             throw new ScenarioValidationException("Provider webhook signatureHeader is required.");
         string[] webhookProperties = [contract.Webhook.EventIdProperty, contract.Webhook.EventTypeProperty, contract.Webhook.EventOccurredAtProperty, contract.Webhook.AttemptIdProperty, contract.Webhook.LogicalPaymentProperty, contract.Webhook.StateProperty];
         if (webhookProperties.Any(string.IsNullOrWhiteSpace) || webhookProperties.Distinct(StringComparer.Ordinal).Count() != webhookProperties.Length)
             throw new ScenarioValidationException("Provider webhook property names must be non-empty and unique.");
     }
+
+    private static void ValidateAssertions(IReadOnlyList<AssertionSpec> assertions, HashSet<string> observationIds)
+    {
+        var assertionIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (AssertionSpec assertion in assertions)
+        {
+            if (string.IsNullOrWhiteSpace(assertion.Id) || !assertionIds.Add(assertion.Id))
+                throw new ScenarioValidationException("Assertion ids must be non-empty and unique.");
+
+            if (IsNumericInvariantKind(assertion.Kind))
+            {
+                if (!IsNumericComparator(assertion.Comparator))
+                    throw new ScenarioValidationException($"Comparator '{assertion.Comparator}' is not valid for numeric invariant '{assertion.Kind}'.");
+                if (assertion.Expected is not JsonElement expected || expected.ValueKind != JsonValueKind.Number || !expected.TryGetInt32(out _))
+                    throw new ScenarioValidationException($"Numeric invariant '{assertion.Id}' requires an integer expected value.");
+                continue;
+            }
+
+            if (!string.Equals(assertion.Kind, "observation", StringComparison.Ordinal))
+                throw new ScenarioValidationException($"Unknown invariant kind '{assertion.Kind}'.");
+            if (string.IsNullOrWhiteSpace(assertion.Observation) || !observationIds.Contains(assertion.Observation))
+                throw new ScenarioValidationException($"Observation invariant '{assertion.Id}' must reference a declared observation.");
+            if (assertion.Rfc6901 is null || !IsJsonPointer(assertion.Rfc6901))
+                throw new ScenarioValidationException($"Observation invariant '{assertion.Id}' requires a valid RFC 6901 JSON Pointer.");
+            if (!IsObservationComparator(assertion.Comparator))
+                throw new ScenarioValidationException($"Comparator '{assertion.Comparator}' is not valid for observation invariant '{assertion.Id}'.");
+
+            if (assertion.Comparator is "exists" or "absent") continue;
+            if (assertion.Expected is not JsonElement observationExpected)
+                throw new ScenarioValidationException($"Observation invariant '{assertion.Id}' comparator '{assertion.Comparator}' requires an expected value.");
+            if (assertion.Comparator == "one_of" && observationExpected.ValueKind != JsonValueKind.Array)
+                throw new ScenarioValidationException($"Observation invariant '{assertion.Id}' comparator 'one_of' requires an array expected value.");
+            if (assertion.Comparator is "gt" or "gte" or "lt" or "lte" && observationExpected.ValueKind != JsonValueKind.Number)
+                throw new ScenarioValidationException($"Observation invariant '{assertion.Id}' comparator '{assertion.Comparator}' requires a numeric expected value.");
+        }
+    }
+
+    private static bool IsNumericInvariantKind(string kind) => kind is
+        "provider_request_count" or "provider_attempt_count" or "provider_effect_count" or
+        "distinct_idempotency_key_count" or "logical_payment_count" or
+        "webhook_delivery_count" or "webhook_acked_count" or "webhook_rejected_count" or
+        "webhook_timeout_count" or "webhook_network_error_count";
+
+    private static bool IsNumericComparator(string comparator) => comparator is "eq" or "count_eq" or "ne" or "gt" or "gte" or "lt" or "lte";
+
+    private static bool IsObservationComparator(string comparator) => comparator is "eq" or "ne" or "gt" or "gte" or "lt" or "lte" or "exists" or "absent" or "one_of";
+
+    private static bool IsJsonPointer(string value)
+    {
+        if (value.Length == 0) return true;
+        if (!value.StartsWith('/')) return false;
+        for (int index = 0; index < value.Length; index++)
+        {
+            if (value[index] != '~') continue;
+            if (++index >= value.Length || value[index] is not ('0' or '1')) return false;
+        }
+        return true;
+    }
+
+    private static bool IsHttpMethod(string value) => value is "GET" or "POST" or "PUT" or "PATCH" or "DELETE";
 
     private static bool IsHttpPath(string value) => value.StartsWith('/') && !value.StartsWith("//", StringComparison.Ordinal);
 }

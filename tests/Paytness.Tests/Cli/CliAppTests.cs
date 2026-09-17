@@ -42,8 +42,14 @@ public sealed class CliAppTests
             Assert.Equal(0, exitCode);
             Assert.True(File.Exists(reportPath));
             using JsonDocument report = JsonDocument.Parse(await File.ReadAllTextAsync(reportPath, token));
+            Assert.Equal(1, report.RootElement.GetProperty("schemaVersion").GetInt32());
+            string[] propertyNames = report.RootElement.EnumerateObject().Select(static property => property.Name).Order(StringComparer.Ordinal).ToArray();
+            Assert.Equal(["evidence", "invariants", "provider", "result", "scenarioHash", "scenarioId", "schemaVersion", "seed", "webhooks"], propertyNames);
             Assert.Equal("pass", report.RootElement.GetProperty("result").GetString());
             Assert.Equal(1, report.RootElement.GetProperty("provider").GetProperty("economicEffectCount").GetInt32());
+            JsonElement firstInvariant = report.RootElement.GetProperty("invariants")[0];
+            Assert.True(firstInvariant.TryGetProperty("evidenceRefs", out JsonElement evidenceRefs));
+            Assert.Equal(JsonValueKind.Array, evidenceRefs.ValueKind);
         }
         finally
         {
@@ -62,6 +68,26 @@ public sealed class CliAppTests
         int exitCode = await CliProcess.InvokeAsync(parse, cancellation.Token);
 
         Assert.Equal(130, exitCode);
+    }
+
+    [Fact]
+    public async Task ValidateCommandReturnsTwoForSemanticAssertionError()
+    {
+        string rootPath = Directory.CreateTempSubdirectory("paytness-cli-").FullName;
+        try
+        {
+            await File.WriteAllTextAsync(Path.Combine(rootPath, "contract.yaml"), "version: 1\n", CancellationToken.None);
+            string scenarioPath = Path.Combine(rootPath, "scenario.yaml");
+            await File.WriteAllTextAsync(scenarioPath, "version: 1\nid: invalid-assertion\ncontract: contract.yaml\nprovider:\n  responseModes: [deliver]\nassertions:\n  - id: bad\n    kind: arbitrary\n    comparator: eq\n    expected: 1\n", CancellationToken.None);
+            RootCommand root = CliApp.Build();
+            ParseResult parse = root.Parse(["validate", scenarioPath]);
+            Assert.Empty(parse.Errors);
+
+            int exitCode = await CliProcess.InvokeAsync(parse, CancellationToken.None);
+
+            Assert.Equal(2, exitCode);
+        }
+        finally { Directory.Delete(rootPath, recursive: true); }
     }
 
 }

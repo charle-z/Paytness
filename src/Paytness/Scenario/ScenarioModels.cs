@@ -5,7 +5,7 @@ namespace Paytness.Scenario;
 
 public sealed record ScenarioSpec
 {
-    public int Version { get; init; } = 1;
+    public int Version { get; init; }
     public string Id { get; init; } = string.Empty;
     public int Seed { get; init; } = 1;
     public int TimeoutSeconds { get; init; } = 60;
@@ -71,7 +71,7 @@ public sealed record AssertionSpec
 
 public sealed record ProviderContract
 {
-    public int Version { get; init; } = 1;
+    public int Version { get; init; }
     public ProviderOperationContract CreatePayment { get; init; } = new();
     public WebhookContract Webhook { get; init; } = new();
     public IReadOnlyDictionary<string, string> StateValues { get; init; } = new Dictionary<string, string>();
