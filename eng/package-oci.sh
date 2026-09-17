@@ -10,18 +10,24 @@ if ! command -v docker >/dev/null 2>&1 || ! docker buildx version >/dev/null 2>&
 fi
 
 ./eng/release-metadata-check.sh
+./eng/prepare-oci-context.sh >/dev/null
 
 VERSION=$(dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:Version)
+BUILD_EPOCH=$(git log -1 --format=%ct)
+REVISION=$(git rev-parse HEAD)
+CONTEXT="$ROOT/.artifacts/oci-context"
 DIST="$ROOT/dist/v$VERSION"
 mkdir -p "$DIST"
 OUT="$DIST/paytness-$VERSION-linux-amd64-arm64.oci.tar"
 rm -f "$OUT"
 
-docker buildx build \
+SOURCE_DATE_EPOCH="$BUILD_EPOCH" docker buildx build \
   --platform linux/amd64,linux/arm64 \
   --build-arg "VERSION=$VERSION" \
-  --output "type=oci,dest=$OUT" \
-  .
+  --build-arg "REVISION=$REVISION" \
+  --output "type=oci,dest=$OUT,rewrite-timestamp=true" \
+  -f "$ROOT/Dockerfile" \
+  "$CONTEXT"
 
 ./eng/scan-oci.sh
 

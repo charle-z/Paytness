@@ -39,7 +39,7 @@ Do not document an unpublished version as installable from NuGet.
 
 ## OCI multiarch
 
-The root `Dockerfile` builds a framework-dependent Paytness payload and runs it on the pinned ASP.NET Core 10.0.12 image as the image's non-root app user.
+The release path first publishes a framework-dependent Paytness payload with the pinned SDK (`eng/prepare-oci-context.sh`). The root `Dockerfile` is runtime-only: it contains no build toolchain and no `RUN` instruction, and runs the staged payload on pinned ASP.NET Core 10.0.12 as the image's non-root app user.
 
 With Docker Buildx:
 
@@ -47,9 +47,9 @@ With Docker Buildx:
 ./eng/package-oci.sh
 ```
 
-The script produces a Linux amd64/arm64 OCI archive under the same versioned `dist/` directory and regenerates checksums.
+The script produces a Linux amd64/arm64 OCI archive under the same versioned `dist/` directory, derives `SOURCE_DATE_EPOCH` from the Git commit, asks the OCI exporter to rewrite layer timestamps, runs the pinned Trivy HIGH/CRITICAL gate, and regenerates checksums.
 
-The nested Devbox toolbox cannot execute Dockerfile `RUN` instructions because its parent sandbox denies supplemental-group operations. The framework-dependent application payload itself has been run successfully inside `mcr.microsoft.com/dotnet/aspnet:10.0.12`. A complete Docker/Buildx run on a normal Docker host remains a publication gate.
+The runtime-only Dockerfile can be built inside the nested Devbox toolbox because it has no `RUN` instructions. Devbox cannot execute the resulting image under its declared non-root UID because the parent sandbox exposes only a single UID/GID mapping; that is a harness limitation. The payload can be smoke-run with a user override, while the declared non-root image and complete amd64/arm64 Buildx + Trivy path remain publication gates on a normal Docker host.
 
 ## GitHub Action
 

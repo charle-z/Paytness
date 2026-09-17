@@ -23,7 +23,7 @@ Single-file publish is untrimmed in v0.1 and sets `IncludeNativeLibrariesForSelf
 
 RID restores use isolated ephemeral lockfiles under `.artifacts`; packaging must prove the canonical `src/Paytness/packages.lock.json` hash does not change. The normal project/CI path continues to use locked restore.
 
-The OCI image is framework-dependent and runs on the pinned ASP.NET Core 10.0.12 runtime image. Managed build output is architecture-neutral, so Buildx can create amd64/arm64 images without architecture-specific application builds.
+The OCI application payload is framework-dependent and architecture-neutral. It is published before the container build with the pinned .NET SDK, then a runtime-only Dockerfile (no SDK and no `RUN`) copies it onto pinned ASP.NET Core 10.0.12. Buildx can therefore assemble amd64/arm64 images without architecture-specific application builds or executing build steps inside the image builder.
 
 The GitHub Action contains no payment logic and no arbitrary `eval`/free-form argument string. Its setup-dotnet dependency is pinned to a full commit SHA.
 
@@ -35,4 +35,4 @@ Active repository workflows are intentionally not enabled during the private pre
 
 ## Evidence
 
-All five RIDs produced exactly one self-contained file. Linux x64 executed `--version` and `validate`. Local NuGet pack/install/execute passed. The Action entrypoint installed the local package and completed a real HTTP healthy scenario with JSON/JUnit output. The OCI payload was executed successfully on `mcr.microsoft.com/dotnet/aspnet:10.0.12`; nested Devbox restrictions prevent a complete Dockerfile build inside the toolbox.
+All five RIDs produced exactly one self-contained file. Linux x64 executed `--version` and `validate`. Local NuGet pack/install/execute passed. The Action entrypoint installed the local package and completed a real HTTP healthy scenario with JSON/JUnit output. The OCI payload was executed successfully on `mcr.microsoft.com/dotnet/aspnet:10.0.12`. After moving to a runtime-only Dockerfile, the actual image also builds inside nested Devbox. Its declared non-root UID cannot be executed in that toolbox because only one UID/GID is mapped, so native non-root runtime smoke plus multiarch Buildx/Trivy remains a normal-host release gate.
