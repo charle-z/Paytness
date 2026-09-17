@@ -2,6 +2,8 @@
 
 This checklist is intentionally blocking. A green local build is not authorization to make the repository public or publish packages/images.
 
+Use `./eng/publication-status.sh` for a cheap aggregate preflight; it reports all currently detectable repository-local blockers before the expensive full audit.
+
 ## Identity and legal
 
 - [ ] Re-check `Paytness` name across relevant software/package/repository/trademark channels close to publication date.

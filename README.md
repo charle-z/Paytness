@@ -150,3 +150,5 @@ PAYTNESS_ENABLE_GITHUB_ACTIONS=1 ./eng/enable-github-workflows.sh
 ```
 
 Do not enable/push them merely to make CI look complete: see `docs/PUBLICATION-CHECKLIST.md` first.
+
+Check cheap publication readiness at any time with `./eng/publication-status.sh` (or `./eng/publication-status.ps1` on PowerShell). It reports all repository-local blockers plus the remaining external/manual gates without running the expensive release suite.
