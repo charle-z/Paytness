@@ -47,7 +47,7 @@ With Docker Buildx:
 ./eng/package-oci.sh
 ```
 
-The script produces a Linux amd64/arm64 OCI archive under the same versioned `dist/` directory, derives `SOURCE_DATE_EPOCH` from the Git commit, asks the OCI exporter to rewrite layer timestamps, runs the pinned Trivy HIGH/CRITICAL gate, and regenerates checksums.
+The script first exports a Linux amd64/arm64 **OCI Image Layout directory** with `tar=false`, derives `SOURCE_DATE_EPOCH` from the Git commit, and asks the OCI exporter to rewrite layer timestamps. Pinned Trivy scans that layout separately for `linux/amd64` and `linux/arm64`; only after both HIGH/CRITICAL scans pass does the script create the deterministic `.oci.tar` release artifact and regenerate checksums.
 
 The runtime-only Dockerfile can be built inside the nested Devbox toolbox because it has no `RUN` instructions. Devbox cannot execute the resulting image under its declared non-root UID because the parent sandbox exposes only a single UID/GID mapping; that is a harness limitation. The payload can be smoke-run with a user override, while the declared non-root image and complete amd64/arm64 Buildx + Trivy path remain publication gates on a normal Docker host.
 
@@ -62,6 +62,7 @@ The action entrypoint has been tested locally with a locally packed NuGet tool a
 ## Canonical gates
 
 - fast local/product gate: `./eng/verify.sh`
+- controlled B7/performance gate: `./eng/performance-gates.sh`
 - real nopCommerce gate: `./reference/nopcommerce/run.sh`
 - binary/NuGet packaging: `./eng/package.sh`
 - bit-reproducibility gate: `./eng/package-repro-check.sh`

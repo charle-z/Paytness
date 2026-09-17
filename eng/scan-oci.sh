@@ -22,9 +22,9 @@ esac
 
 VERSION=$(dotnet msbuild src/Paytness/Paytness.csproj -nologo -getProperty:Version)
 DIST="$ROOT/dist/v$VERSION"
-OCI="$DIST/paytness-$VERSION-linux-amd64-arm64.oci.tar"
-[ -f "$OCI" ] || {
-  echo "OCI artifact is missing: $OCI" >&2
+OCI="$DIST/paytness-$VERSION-linux-amd64-arm64.oci"
+[ -d "$OCI" ] || {
+  echo "OCI layout is missing: $OCI" >&2
   echo "Run ./eng/package-oci.sh first on a Docker Buildx host." >&2
   exit 2
 }

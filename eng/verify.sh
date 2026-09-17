@@ -18,19 +18,22 @@ case "$required_sdk" in
   *) echo "Paytness requires .NET SDK 10.x; found $required_sdk." >&2; exit 2 ;;
 esac
 
-echo "[1/7] restore locked"
+echo "[1/8] restore locked"
 dotnet restore Paytness.sln --locked-mode
 
-echo "[2/7] format verify"
+echo "[2/8] format verify"
 dotnet format Paytness.sln --verify-no-changes --no-restore
 
-echo "[3/7] release build"
+echo "[3/8] release build"
 dotnet build Paytness.sln -c Release --no-restore
 
-echo "[4/7] tests"
+echo "[4/8] tests"
 dotnet test Paytness.sln -c Release --no-build
 
-echo "[5/7] scenario contract smoke"
+echo "[5/8] deterministic quality gates"
+./eng/quality-gates.sh
+
+echo "[6/8] scenario contract smoke"
 dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate scenarios/healthy.yaml
 dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate scenarios/duplicate-webhook.yaml
 dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate scenarios/out-of-order-webhook.yaml
@@ -39,10 +42,10 @@ for scenario in scenarios/nopcommerce/nop-*.yaml; do
   dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate "$scenario"
 done
 
-echo "[6/7] adversarial security smoke"
+echo "[7/8] adversarial security smoke"
 ./eng/security-smoke.sh
 
-echo "[7/7] dependency vulnerability audit"
+echo "[8/8] dependency vulnerability audit"
 dotnet list Paytness.sln package --vulnerable --include-transitive
 
 echo "Paytness verification passed."

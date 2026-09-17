@@ -25,8 +25,11 @@ grep -Fq "ARG VERSION=$VERSION" Dockerfile || fail "root Dockerfile VERSION defa
 grep -Fq "dotnet/aspnet:10.0.12" Dockerfile || fail "root Dockerfile runtime is not pinned to ASP.NET Core 10.0.12"
 grep -Fq 'USER $APP_UID' Dockerfile || fail "root Dockerfile does not enforce the non-root runtime user"
 if grep -Eq '^[[:space:]]*RUN[[:space:]]' Dockerfile; then fail "root Dockerfile must remain runtime-only and contain no RUN instructions"; fi
-grep -Fq "dotnet/sdk:$SDK_VERSION" reference/nopcommerce/Dockerfile.nopcommerce || fail "reference plugin Dockerfile SDK does not match global.json"
-grep -Fq "dotnet/sdk:$SDK_VERSION" reference/nopcommerce/Dockerfile.paytness || fail "reference Paytness Dockerfile SDK does not match global.json"
+grep -Fq "SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:$SDK_VERSION" reference/nopcommerce/build-images.sh || fail "reference build-images SDK does not match global.json"
 grep -Fq 'nopcommerceteam/nopcommerce:4.90.8' reference/nopcommerce/Dockerfile.nopcommerce || fail "nopCommerce reference image is not pinned to 4.90.8"
+grep -Fq 'dotnet/aspnet:10.0.12' reference/nopcommerce/Dockerfile.paytness || fail "reference Paytness runtime is not pinned to ASP.NET Core 10.0.12"
+for file in reference/nopcommerce/Dockerfile.nopcommerce reference/nopcommerce/Dockerfile.paytness; do
+  if grep -Eq '^[[:space:]]*RUN[[:space:]]' "$file"; then fail "$file must remain runtime-only and contain no RUN instructions"; fi
+done
 
 printf 'Release metadata aligned: version=%s package=%s sdk=%s nopCommerce=4.90.8\n' "$VERSION" "$PACKAGE_ID" "$SDK_VERSION"

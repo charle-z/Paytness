@@ -16,9 +16,7 @@ services:
       retries: 30
 
   paytness:
-    build:
-      context: ../..
-      dockerfile: reference/nopcommerce/Dockerfile.paytness
+    image: paytness-reference-runner:local
     environment:
       PAYTNESS_WEBHOOK_SECRET: ${PAYTNESS_WEBHOOK_SECRET:-paytness-reference-test-only-signing-key}
     command: ["sleep", "infinity"]
@@ -26,9 +24,7 @@ services:
       - ../../.artifacts/nopcommerce:/artifacts
 
   nopcommerce:
-    build:
-      context: ../..
-      dockerfile: reference/nopcommerce/Dockerfile.nopcommerce
+    image: paytness-reference-nopcommerce:local
     environment:
       ASPNETCORE_URLS: http://+:8080
       PAYTNESS_REFERENCE_MODE: "1"

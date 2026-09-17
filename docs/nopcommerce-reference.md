@@ -12,7 +12,7 @@ Prerequisite: Docker with the Compose plugin. On Windows, run this from WSL.
 ./reference/nopcommerce/run.sh
 ```
 
-The script builds the two reference images, creates a fresh PostgreSQL database, waits for nopCommerce readiness, runs NOP-01..07, recreates the stack for each required mutation, verifies that both mutations are detected, writes JSON/JUnit reports under `.artifacts/nopcommerce/`, and tears the stack down automatically.
+The script uses short-lived SDK containers to compile Paytness and the test-only plugin into ignored `.artifacts`, assembles two runtime-only local images, creates a fresh PostgreSQL database, waits for nopCommerce readiness, runs NOP-01..07, recreates the stack for each required mutation, verifies that both mutations are detected, writes JSON/JUnit reports under `.artifacts/nopcommerce/`, and tears the stack down automatically. No local .NET SDK is required.
 
 Set `PAYTNESS_KEEP_REFERENCE=1` only when debugging and you intentionally want the stack left running after the gate.
 
@@ -43,7 +43,7 @@ The plugin exposes only test/reference surfaces:
 
 No browser installation flow is required.
 
-The derived nopCommerce image contains PostgreSQL DataConfig plus the test-only plugin. PostgreSQL creates the `citext` extension at initialization. On an empty database, nopCommerce runs its normal FluentMigrator migrations. Before the request pipeline reaches the first component that requires a Store, `ReferenceStartup` invokes nopCommerce's own `IInstallationService.InstallAsync` to seed required application data.
+The locally assembled nopCommerce reference image contains PostgreSQL DataConfig plus the test-only plugin. PostgreSQL creates the `citext` extension at initialization. On an empty database, nopCommerce runs its normal FluentMigrator migrations. Before the request pipeline reaches the first component that requires a Store, `ReferenceStartup` invokes nopCommerce's own `IInstallationService.InstallAsync` to seed required application data.
 
 The bootstrap credential is generated in memory for that startup and is never printed or stored by Paytness. The reference plugin replaces `IWebHelper` only in explicit reference mode so the official seed service can determine its initial store URL before a Store exists.
 
@@ -85,15 +85,17 @@ The reference is explicitly test-only. `PAYTNESS_REFERENCE_MODE=1` is required f
 
 Never deploy the reference plugin or its Compose configuration to production.
 
-## Reproducible build
+## Reproducible local build
 
-`Dockerfile.nopcommerce` derives from `nopcommerceteam/nopcommerce:4.90.8` and copies the exact nopCommerce assemblies from that same image into the plugin build stage. The repository therefore does **not** version nopCommerce DLLs.
+`build-images.sh` requires only Docker from the developer. It creates short-lived `mcr.microsoft.com/dotnet/sdk:10.0.401` containers to perform locked restore/build outside the final images. The exact `Nop.Core`, `Nop.Data`, `Nop.Services`, and `Nop.Web.Framework` assemblies are copied from the official `nopcommerceteam/nopcommerce:4.90.8` image into ignored staging and are never committed.
 
-`Dockerfile.paytness` builds Paytness with SDK 10.0.401 and runs it on ASP.NET Core runtime 10.0.12. Dependency restore is locked.
+Both final Dockerfiles are runtime-only and contain **no `RUN` instruction**. `Dockerfile.nopcommerce` layers the plugin/configuration onto the official nopCommerce image; `Dockerfile.paytness` layers the already-published Paytness payload and scenarios onto ASP.NET Core 10.0.12. The readiness check uses `wget` already present in the upstream nopCommerce image, so no package-manager step is required.
 
-### Devbox validation note
+The runtime-only packaging path was validated in nested Devbox from a fresh database: both final images built, nopCommerce bootstrapped automatically, and NOP-01 Healthy plus NOP-03 stable retry passed using outputs compiled exclusively by the short-lived SDK containers. The complete NOP-01..07 + both-mutation behavior had already been executed against the same reference code before this packaging refactor. A normal Docker host must rerun the full one-command gate before publication.
 
-The product behavior above was executed with real nopCommerce/PostgreSQL containers and both mutation gates passed. The final public Dockerfiles/Compose are also structurally validated, but the nested rootless Devbox toolbox cannot execute Dockerfile `RUN` steps because its parent sandbox denies container `setgroups`/supplemental-group operations. This is a limitation of the nested validation harness, not a failure observed in Paytness or nopCommerce. The public reference path targets a normal Docker/Compose installation.
+## Licensing boundary
+
+nopCommerce 4.90.8 is licensed under NPL 4.0 (AGPLv3 plus nopCommerce additional terms). Paytness therefore does **not** publish a prebuilt nopCommerce-derived image as a normal distribution artifact. The reference image is built locally from the official upstream image. The root Paytness license must not be assumed to govern `reference/nopcommerce/`; explicit subtree licensing/notice treatment is a blocking public-release decision. Upstream attribution, including applicable `powered by nopCommerce` requirements, must be preserved.
 
 ## Rejection criteria
 

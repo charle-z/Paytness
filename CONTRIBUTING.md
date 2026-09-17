@@ -18,6 +18,14 @@ Windows PowerShell:
 
 These commands are the local source of truth for restore, formatting, Release build, tests, scenario validation, and dependency vulnerability auditing. Future CI must call the same verification flow rather than reimplementing it differently.
 
+`eng/verify.*` also runs the deterministic B1/B2/B6 quality-gate executable. Timing/RSS/B7 checks are intentionally separate so ordinary PR validation stays stable:
+
+```sh
+./eng/performance-gates.sh
+```
+
+Run the performance gate for changes to parsing, scheduling, execution/concurrency, provider hosting, evidence retention, or before a release candidate.
+
 ## Design constraints
 
 - C# 14 / .NET 10; one executable and one process for the runner.

@@ -22,7 +22,7 @@ The plugin:
 
 Bootstrap uses normal nopCommerce migrations and its own `IInstallationService`. PostgreSQL enables the `citext` extension before nopCommerce starts. No browser/admin-panel installation is part of the supported reference workflow.
 
-The seven NOP scenarios and both required mutations are executed by an automated Compose harness.
+The seven NOP scenarios and both required mutations are executed by an automated Compose harness. Image preparation uses short-lived SDK containers and runtime-only final images, so the public quick start requires Docker but not a locally installed .NET SDK.
 
 ## Consequences
 
@@ -37,8 +37,9 @@ Costs:
 
 - the reference plugin targets net9.0 because nopCommerce 4.90.8 does;
 - real-SUT startup is much slower than the synthetic gate;
-- Docker is required for the one-command public reference gate.
+- Docker is required for the one-command public reference gate;
+- nopCommerce 4.90.8 uses NPL 4.0, so the reference subtree has a separate licensing/publication gate and no prebuilt nopCommerce-derived image is published by default.
 
 ## Rejection criteria
 
-Revisit the reference if it requires changes to nopCommerce core, direct PostgreSQL reads from Paytness, browser automation for normal setup, or nopCommerce-specific abstractions in Paytness core.
+Revisit the reference if it requires changes to nopCommerce core, direct PostgreSQL reads from Paytness, browser automation for normal setup, nopCommerce-specific abstractions in Paytness core, or licensing obligations that cannot be cleanly isolated from Paytness core. If licensing forces a pivot, current evidence favors a minimal `dotnet/eShop`-based reference over SimplCommerce.

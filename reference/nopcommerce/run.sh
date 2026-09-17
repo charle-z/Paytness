@@ -80,7 +80,7 @@ expect_mutation_failure() {
 }
 
 echo "[reference 1/4] build images"
-dc build
+"$HERE/build-images.sh"
 
 echo "[reference 2/4] NOP-01..07"
 start_clean_stack ""

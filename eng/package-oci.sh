@@ -18,18 +18,23 @@ REVISION=$(git rev-parse HEAD)
 CONTEXT="$ROOT/.artifacts/oci-context"
 DIST="$ROOT/dist/v$VERSION"
 mkdir -p "$DIST"
+LAYOUT="$DIST/paytness-$VERSION-linux-amd64-arm64.oci"
 OUT="$DIST/paytness-$VERSION-linux-amd64-arm64.oci.tar"
+rm -rf "$LAYOUT"
 rm -f "$OUT"
 
 SOURCE_DATE_EPOCH="$BUILD_EPOCH" docker buildx build \
   --platform linux/amd64,linux/arm64 \
   --build-arg "VERSION=$VERSION" \
   --build-arg "REVISION=$REVISION" \
-  --output "type=oci,dest=$OUT,rewrite-timestamp=true" \
+  --output "type=oci,dest=$LAYOUT,tar=false,rewrite-timestamp=true" \
   -f "$ROOT/Dockerfile" \
   "$CONTEXT"
 
 ./eng/scan-oci.sh
+
+tar --sort=name --mtime="@$BUILD_EPOCH" --owner=0 --group=0 --numeric-owner -cf "$OUT" -C "$LAYOUT" .
+rm -rf "$LAYOUT"
 
 (
   cd "$DIST"

@@ -5,7 +5,9 @@ This checklist is intentionally blocking. A green local build is not authorizati
 ## Identity and legal
 
 - [ ] Re-check `Paytness` name across relevant software/package/repository/trademark channels close to publication date.
-- [ ] Select an open-source license deliberately and add the exact `LICENSE` file.
+- [ ] Select an open-source license deliberately for Paytness core and add the exact `LICENSE` file.
+- [ ] Resolve the separate license/notice posture for `reference/nopcommerce/` under nopCommerce NPL 4.0; do not assume the root license covers the plugin.
+- [ ] Confirm no prebuilt nopCommerce-derived reference image is being published unless all NPL obligations have been explicitly reviewed and satisfied.
 - [ ] Add the chosen license metadata to NuGet/OCI only after the license decision is made.
 - [ ] Choose the first public prerelease version/tag (for example an alpha) and make package/binary/image versions match.
 
@@ -20,6 +22,7 @@ This checklist is intentionally blocking. A green local build is not authorizati
 ## Required technical gates
 
 - [ ] `./eng/verify.sh` PASS.
+- [ ] `./eng/performance-gates.sh` PASS in a controlled Linux x64 Release environment and record the measurements.
 - [ ] `./reference/nopcommerce/run.sh` PASS on a normal Docker + Compose host, not only the nested Devbox workaround.
 - [ ] NOP-01..07 PASS from a fresh reference stack.
 - [ ] `unstable-idempotency` and `accept-stale-state` mutation gates FAIL for the required reasons.

@@ -8,6 +8,22 @@ Paytness models provider-side semantic commit separately from HTTP delivery. It 
 
 Paytness is not a generic mock server, a PSP emulator, a PCI certification tool, or a load-testing product.
 
+## Quick start — real reference SUT
+
+From a source checkout, the fastest useful demo requires **Docker with the Compose plugin**. You do not need a local .NET SDK, PostgreSQL installation, nopCommerce installation, browser setup, or manual plugin configuration.
+
+```bash
+./reference/nopcommerce/run.sh
+```
+
+That one command uses short-lived SDK containers to compile Paytness and the test-only reference plugin, assembles runtime-only local images, creates PostgreSQL, bootstraps nopCommerce, runs NOP-01..07, verifies both required negative mutations, writes JSON/JUnit evidence under `.artifacts/nopcommerce/`, and tears the stack down automatically. A successful run ends with:
+
+```text
+Paytness nopCommerce reference passed: NOP-01..07 green and both required mutations detected.
+```
+
+The nopCommerce reference is built locally from the official upstream image and is not a prebuilt Paytness distribution artifact. It proves the workflow against a real external SUT; it is not a claim of compatibility with a production PSP. To test your own SUT, expose test-only HTTP driver/observer endpoints and use the CLI contract below.
+
 ## Runtime and shape
 
 - C# 14 / .NET 10 LTS (`net10.0`)
@@ -66,7 +82,7 @@ The command performs locked restore, format verification, Release build, the ful
 
 ## Implemented so far
 
-Slices 1–7 are executable today:
+Slices 1–8 are implemented in the current pre-publication tree:
 
 - healthy external payment;
 - semantic provider commit followed by a lost response and idempotent retry;

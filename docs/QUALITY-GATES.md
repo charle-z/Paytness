@@ -15,7 +15,7 @@ Required:
 - fast security matrix;
 - dependency vulnerability audit.
 
-Coverage is informational; there is no global percentage gate. Direct tests are mandatory for state machines, idempotency, scheduler ordering, target policy, redaction and ScenarioSpec validation.
+Coverage is informational; there is no global percentage gate. Direct tests are mandatory for state machines, idempotency, scheduler ordering, target policy, redaction and ScenarioSpec validation. `eng/verify.*` also executes `Paytness.QualityGates`, which exercises deterministic B1/B2/B6 boundaries without relying on timing-sensitive unit-test assertions.
 
 ## Functional benchmarks
 
@@ -28,6 +28,20 @@ B6 cancellation with active webhooks/polls; no false PASS; shutdown <= 5 s.
 B7 repeated healthy runs do not show linear retained-memory growth.
 
 Baseline targets on Linux x64 Release are engineering gates, not commercial SLAs: provider-ready p95 <=1.5 s; normal validation p95 <=500 ms; 1 MiB validation p95 <=1 s; small-runner overhead <=500 ms excluding SUT; RSS <200 MiB under normal maximum benchmark; scheduler lag p95 <25 ms on non-saturated CPU.
+
+## Controlled performance gate
+
+Performance and retained-memory checks are intentionally separate from the fast PR loop:
+
+```sh
+./eng/performance-gates.sh
+```
+
+```powershell
+./eng/performance-gates.ps1
+```
+
+The gate measures the documented Linux x64 engineering budgets and B7 over 100 healthy runs. B7 also uses deliberately loose regression guards: managed-memory delta must remain <=5 MiB across the sampled run window and fitted managed-memory slope must remain <=64 KiB/run. These are regression tripwires, not commercial SLAs. The observed Devbox baseline was about +0.02 MiB total and ~259 bytes/run.
 
 ## Main branch / reference
 

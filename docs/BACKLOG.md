@@ -55,7 +55,7 @@ UI/SaaS, runner database, real PSP adapters, ISO 8583/20022 core, capture/refund
 
 ## Implementation checkpoint — 2026-09-16
 
-Slices 1–7 are implemented. Slice 8 (distribution/publication) is the next vertical slice.
+Slices 1–8 are implemented to pre-publication state. Remaining work is release/publication hardening, legal/licensing decisions, native/normal-host release smokes, and external-user activation.
 
 ### Slices 1–3
 
@@ -94,10 +94,8 @@ Required mutation gates are also verified from fresh databases:
 
 A one-command Docker Compose harness is materialized at `reference/nopcommerce/run.sh`. The nested Devbox toolbox cannot execute Dockerfile `RUN` steps because its parent sandbox denies `setgroups`; this is a validation-environment constraint, not a product failure. Individual image ingredients and the complete reference behavior have been executed successfully in Devbox.
 
-### Slice 8 — next
+### Slice 8 — implemented, publication still gated
 
-- publish/smoke self-contained single-file RIDs;
-- OCI multiarch image and checksums;
-- `dotnet tool` packaging;
-- thin GitHub Action that delegates to canonical repository gates;
-- release/public-repo hygiene, license and publication checklist.
+Implemented locally: five self-contained single-file RIDs, deterministic archives/checksums, bit-reproducibility gate, NuGet tool pack/install smoke, runtime-only OCI packaging design, pinned Trivy scan tooling, thin GitHub Action, release metadata checks, Gitleaks and fail-closed publication audit.
+
+Still blocking public release: core license + nopCommerce subtree licensing posture, normal-host amd64/arm64 Buildx+Trivy, native Windows/macOS smokes, trademark/name clearance and an external user's clean quick-start run.
