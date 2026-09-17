@@ -1,0 +1,59 @@
+version: 1
+id: alternate-provider-shape
+seed: 909
+timeoutSeconds: 15
+contract: contracts/alternate.yaml
+provider:
+  responseModes:
+    - deliver
+actions:
+  - method: POST
+    path: /test/pay
+webhooks:
+  path: /test/webhook
+  events:
+    - id: evt-alt-1
+      type: payment.succeeded
+      attemptOrdinal: 1
+  deliveries:
+    - eventId: evt-alt-1
+observations:
+  - id: payment
+    path: /test/state
+    timeoutMs: 5000
+    intervalMs: 50
+assertions:
+  - id: one-request
+    kind: provider_request_count
+    comparator: eq
+    expected: 1
+  - id: one-attempt
+    kind: provider_attempt_count
+    comparator: eq
+    expected: 1
+  - id: one-effect
+    kind: provider_effect_count
+    comparator: eq
+    expected: 1
+  - id: webhook-acked
+    kind: webhook_acked_count
+    comparator: eq
+    expected: 1
+  - id: response-shape-validated
+    kind: observation
+    observation: payment
+    pointer: /responseValidated
+    comparator: eq
+    expected: true
+  - id: paid
+    kind: observation
+    observation: payment
+    pointer: /paymentStatus
+    comparator: eq
+    expected: Paid
+  - id: webhook-received
+    kind: observation
+    observation: payment
+    pointer: /webhookReceivedCount
+    comparator: eq
+    expected: 1

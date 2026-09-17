@@ -1,0 +1,32 @@
+version: 1
+createPayment:
+  method: POST
+  path: /gateway/v2/charges
+  idempotencyHeader: X-Idempotency-Key
+  extract:
+    logicalPayment: /order/reference
+    amountMinor: /money/minor
+    currency: /money/currency
+  responseBody:
+    data:
+      charge:
+        id: { "$bind": providerAttemptId }
+        reference: { "$bind": logicalPayment }
+        amountMinor: { "$bind": amountMinor }
+        currency: { "$bind": currency }
+        status: { "$bind": providerState }
+stateValues:
+  processing: IN_PROGRESS
+  succeeded: PAID
+  failed: DECLINED
+webhook:
+  signatureHeader: X-Gateway-Signature
+  body:
+    event:
+      id: { "$bind": eventId }
+      type: { "$bind": eventType }
+      occurredAt: { "$bind": eventOccurredAt }
+    payment:
+      chargeId: { "$bind": providerAttemptId }
+      reference: { "$bind": logicalPayment }
+      status: { "$bind": providerState }

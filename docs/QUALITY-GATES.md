@@ -15,6 +15,8 @@ Required:
 - fast security matrix;
 - dependency vulnerability audit.
 
+ProviderContract expressiveness is also gated by both the canonical contract and `scenarios/alternate-provider-shape.yaml`, which uses different endpoints, idempotency header, nested request extraction, nested response skeleton, nested webhook skeleton and signature header without scripts or custom runner code. This is an internal compatibility proof, not an external-user adoption claim.
+
 Coverage is informational; there is no global percentage gate. Direct tests are mandatory for state machines, idempotency, scheduler ordering, target policy, redaction and ScenarioSpec validation. `eng/verify.*` also executes `Paytness.QualityGates`, which exercises deterministic B1/B2/B6 boundaries without relying on timing-sensitive unit-test assertions.
 
 ## Functional benchmarks

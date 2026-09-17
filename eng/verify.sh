@@ -38,6 +38,7 @@ dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate scenarios/healthy.
 dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate scenarios/duplicate-webhook.yaml
 dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate scenarios/out-of-order-webhook.yaml
 dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate scenarios/concurrent-same-payment.yaml
+dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate scenarios/alternate-provider-shape.yaml
 for scenario in scenarios/nopcommerce/nop-*.yaml; do
   dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate "$scenario"
 done

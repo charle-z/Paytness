@@ -163,4 +163,26 @@ public sealed class ScenarioRunnerTests
         Assert.Equal(1, report.Provider.EconomicEffectCount);
         Assert.Equal(1, report.Provider.DistinctIdempotencyKeyCount);
     }
+    [Fact]
+    public async Task AlternateProviderShapePassesWithoutScriptsOrCustomRunnerCode()
+    {
+        const string signingKey = "alternate-test-signing-key";
+        LoadedScenario loaded = await ScenarioLoader.LoadAsync(TestPaths.Scenario("alternate-provider-shape.yaml"), CancellationToken.None);
+        int providerPort = TestPaths.GetFreePort();
+        await using AlternateContractSut sut = await AlternateContractSut.StartAsync(
+            new Uri($"http://127.0.0.1:{providerPort}"), signingKey);
+
+        RunReport report = await ScenarioRunner.RunAsync(
+            loaded,
+            new RunOptions(sut.Origin, new IPEndPoint(IPAddress.Loopback, providerPort), [], false, signingKey),
+            CancellationToken.None);
+
+        Assert.Equal(InvariantStatus.Pass, report.Result);
+        Assert.Equal(1, report.Provider.RequestCount);
+        Assert.Equal(1, report.Provider.AttemptCount);
+        Assert.Equal(1, report.Provider.EconomicEffectCount);
+        Assert.Equal(1, report.Webhooks.AckedCount);
+        Assert.All(report.Invariants, invariant => Assert.Equal(InvariantStatus.Pass, invariant.Status));
+    }
+
 }

@@ -32,6 +32,7 @@ The nopCommerce reference is built locally from the official upstream image and 
 - in-memory state per run
 - declarative YAML/JSON ScenarioSpec + ProviderContract
 - optional declarative JSON response/webhook skeletons with closed `$bind` values (no scripts/eval)
+- two distinct provider JSON shapes exercised by the same runner/contracts, including a nested alternate API fixture
 - console, JSON and JUnit evidence outputs
 
 The core never reads the SUT database. Reference integrations expose test-only driver, webhook and observer HTTP endpoints.

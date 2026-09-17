@@ -24,6 +24,7 @@ dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate scenarios/healthy.
 dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate scenarios/duplicate-webhook.yaml
 dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate scenarios/out-of-order-webhook.yaml
 dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate scenarios/concurrent-same-payment.yaml
+dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate scenarios/alternate-provider-shape.yaml
 Get-ChildItem 'scenarios/nopcommerce/nop-*.yaml' | Sort-Object Name | ForEach-Object {
     dotnet src/Paytness/bin/Release/net10.0/paytness.dll validate $_.FullName
 }
