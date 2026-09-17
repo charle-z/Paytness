@@ -33,6 +33,8 @@ grep -Fq 'USER $APP_UID' Dockerfile || fail "root Dockerfile does not enforce th
 if grep -Eq '^[[:space:]]*RUN[[:space:]]' Dockerfile; then fail "root Dockerfile must remain runtime-only and contain no RUN instructions"; fi
 grep -Fq "SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:$SDK_VERSION" reference/nopcommerce/build-images.sh || fail "reference build-images SDK does not match global.json"
 grep -Fq 'nopcommerceteam/nopcommerce:4.90.8' reference/nopcommerce/Dockerfile.nopcommerce || fail "nopCommerce reference image is not pinned to 4.90.8"
+grep -Fq 'powered by nopCommerce' reference/nopcommerce/plugin/Paytness.Reference/ReferencePaymentInfoViewComponent.cs || fail "nopCommerce reference UI attribution is missing"
+grep -Fq 'https://www.nopcommerce.com' reference/nopcommerce/plugin/Paytness.Reference/ReferencePaymentInfoViewComponent.cs || fail "nopCommerce reference UI attribution link is missing"
 grep -Fq 'dotnet/aspnet:10.0.12' reference/nopcommerce/Dockerfile.paytness || fail "reference Paytness runtime is not pinned to ASP.NET Core 10.0.12"
 for file in reference/nopcommerce/Dockerfile.nopcommerce reference/nopcommerce/Dockerfile.paytness; do
   if grep -Eq '^[[:space:]]*RUN[[:space:]]' "$file"; then fail "$file must remain runtime-only and contain no RUN instructions"; fi

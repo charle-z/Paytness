@@ -11,6 +11,7 @@ Paytness core does not vendor or embed nopCommerce binaries in its normal CLI, N
 - Upstream license information: `https://www.nopcommerce.com/license`
 
 The Paytness reference harness does not remove upstream attribution and does not publish a prebuilt nopCommerce-derived image as a normal Paytness release artifact. Instead, the reference image is assembled locally from the official upstream image when the test harness runs.
+The test-only payment-info component also renders a visible clickable `powered by nopCommerce` attribution linking to `https://www.nopcommerce.com` as conservative license hygiene. This does not represent a legal conclusion that the component alone satisfies every NPL obligation.
 
 `reference/nopcommerce/plugin/Paytness.Reference` links to nopCommerce assemblies in order to exercise real nopCommerce payment/application behavior. The applicable licensing treatment for that test-only plugin is a **separate publication decision** and is not established by this notice. Do not assume that a future root Paytness license automatically governs that plugin or overrides nopCommerce licensing obligations.
 

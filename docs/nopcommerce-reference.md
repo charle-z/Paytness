@@ -96,6 +96,7 @@ The runtime-only packaging path was validated in nested Devbox from a fresh data
 ## Licensing boundary
 
 nopCommerce 4.90.8 is licensed under NPL 4.0 (AGPLv3 plus nopCommerce additional terms). Paytness therefore does **not** publish a prebuilt nopCommerce-derived image as a normal distribution artifact. The reference image is built locally from the official upstream image. The root Paytness license must not be assumed to govern `reference/nopcommerce/`; explicit subtree licensing/notice treatment is a blocking public-release decision. Upstream attribution, including applicable `powered by nopCommerce` requirements, must be preserved.
+The plugin payment-info component includes a visible clickable `powered by nopCommerce` link, and the release metadata gate checks that the text and upstream URL remain present. This is a conservative safeguard, not a substitute for the separate NPL publication review.
 
 ## Rejection criteria
 
