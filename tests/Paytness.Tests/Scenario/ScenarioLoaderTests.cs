@@ -254,4 +254,28 @@ webhooks:
         finally { Directory.Delete(root, recursive: true); }
     }
 
+    [Fact]
+    public async Task ProviderBindingTemplatesAreValidatedDuringLoad()
+    {
+        string root = Directory.CreateTempSubdirectory("paytness-template-").FullName;
+        try
+        {
+            string scenario = Path.Combine(root, "scenario.yaml");
+            await File.WriteAllTextAsync(scenario, "version: 1\nid: template-validation\ncontract: contract.yaml\nprovider:\n  responseModes: [deliver]\n", CancellationToken.None);
+            string contract = Path.Combine(root, "contract.yaml");
+
+            await File.WriteAllTextAsync(contract, "version: 1\ncreatePayment:\n  responseBody:\n    payment:\n      id:\n        $bind: unknown\n", CancellationToken.None);
+            await Assert.ThrowsAsync<ScenarioValidationException>(() => ScenarioLoader.LoadAsync(scenario, CancellationToken.None));
+
+            await File.WriteAllTextAsync(contract, "version: 1\ncreatePayment:\n  responseBody:\n    payment:\n      id:\n        $bind: providerAttemptId\n        extra: true\n", CancellationToken.None);
+            await Assert.ThrowsAsync<ScenarioValidationException>(() => ScenarioLoader.LoadAsync(scenario, CancellationToken.None));
+
+            await File.WriteAllTextAsync(contract, "version: 1\ncreatePayment:\n  responseBody:\n    payment:\n      id:\n        $bind: providerAttemptId\nwebhook:\n  body:\n    event:\n      id:\n        $bind: eventId\n", CancellationToken.None);
+            LoadedScenario loaded = await ScenarioLoader.LoadAsync(scenario, CancellationToken.None);
+            Assert.NotNull(loaded.Contract.CreatePayment.ResponseBody);
+            Assert.NotNull(loaded.Contract.Webhook.Body);
+        }
+        finally { Directory.Delete(root, recursive: true); }
+    }
+
 }

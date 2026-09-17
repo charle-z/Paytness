@@ -31,6 +31,7 @@ The nopCommerce reference is built locally from the official upstream image and 
 - ASP.NET Core Minimal APIs + embedded Kestrel
 - in-memory state per run
 - declarative YAML/JSON ScenarioSpec + ProviderContract
+- optional declarative JSON response/webhook skeletons with closed `$bind` values (no scripts/eval)
 - console, JSON and JUnit evidence outputs
 
 The core never reads the SUT database. Reference integrations expose test-only driver, webhook and observer HTTP endpoints.

@@ -106,6 +106,20 @@ public static class WebhookDispatcher
 
     private static byte[] SerializeEvent(PaymentEvent paymentEvent, WebhookContract contract)
     {
+        if (contract.Body is JsonElement template)
+        {
+            var bindings = new Dictionary<string, JsonElement>(StringComparer.Ordinal)
+            {
+                ["eventId"] = JsonSerializer.SerializeToElement(paymentEvent.EventId),
+                ["eventType"] = JsonSerializer.SerializeToElement(paymentEvent.EventType),
+                ["eventOccurredAt"] = JsonSerializer.SerializeToElement(paymentEvent.OccurredAt),
+                ["providerAttemptId"] = JsonSerializer.SerializeToElement(paymentEvent.ProviderAttemptId),
+                ["logicalPayment"] = JsonSerializer.SerializeToElement(paymentEvent.LogicalPayment),
+                ["providerState"] = JsonSerializer.SerializeToElement(paymentEvent.ProviderState),
+            };
+            return JsonBindingTemplate.Render(template, bindings);
+        }
+
         var payload = new Dictionary<string, object?>(StringComparer.Ordinal)
         {
             [contract.EventIdProperty] = paymentEvent.EventId,

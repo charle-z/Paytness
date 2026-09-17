@@ -90,17 +90,42 @@ public sealed class ProviderHost : IAsyncDisposable
 
                 string providerState = contract.StateValues.TryGetValue("succeeded", out string? mappedState) ? mappedState : "SUCCEEDED";
                 context.Response.StatusCode = StatusCodes.Status200OK;
-                await context.Response.WriteAsJsonAsync(new
+                if (contract.CreatePayment.ResponseBody is JsonElement responseTemplate)
                 {
-                    providerAttemptId = result.Attempt.Id,
-                    logicalPayment = result.Attempt.LogicalPayment,
-                    state = providerState,
-                }, context.RequestAborted);
+                    var bindings = new Dictionary<string, JsonElement>(StringComparer.Ordinal)
+                    {
+                        ["providerAttemptId"] = JsonSerializer.SerializeToElement(result.Attempt.Id),
+                        ["logicalPayment"] = JsonSerializer.SerializeToElement(result.Attempt.LogicalPayment),
+                        ["providerState"] = JsonSerializer.SerializeToElement(providerState),
+                        ["amountMinor"] = ExtractOrNull(payload.RootElement, contract.CreatePayment.Extract.AmountMinor),
+                        ["currency"] = ExtractOrNull(payload.RootElement, contract.CreatePayment.Extract.Currency),
+                    };
+                    byte[] responseBody = JsonBindingTemplate.Render(responseTemplate, bindings);
+                    context.Response.ContentType = "application/json";
+                    context.Response.ContentLength = responseBody.Length;
+                    await context.Response.Body.WriteAsync(responseBody, context.RequestAborted);
+                }
+                else
+                {
+                    await context.Response.WriteAsJsonAsync(new
+                    {
+                        providerAttemptId = result.Attempt.Id,
+                        logicalPayment = result.Attempt.LogicalPayment,
+                        state = providerState,
+                    }, context.RequestAborted);
+                }
             }
         });
 
         await app.StartAsync(cancellationToken);
         return new ProviderHost(app, state, new Uri($"http://{endpoint.Address}:{endpoint.Port}"));
+    }
+
+    private static JsonElement ExtractOrNull(JsonElement payload, string? pointer)
+    {
+        if (pointer is not null && JsonPointer.TryResolve(payload, pointer, out JsonElement value))
+            return value.Clone();
+        return JsonSerializer.SerializeToElement<object?>(null);
     }
 
     public async ValueTask DisposeAsync()

@@ -83,6 +83,7 @@ public sealed record ProviderOperationContract
     public string Path { get; init; } = "/provider/v1/payments";
     public string IdempotencyHeader { get; init; } = "Idempotency-Key";
     public ProviderExtractionSpec Extract { get; init; } = new();
+    public JsonElement? ResponseBody { get; init; }
 }
 
 public sealed record ProviderExtractionSpec
@@ -95,6 +96,7 @@ public sealed record ProviderExtractionSpec
 public sealed record WebhookContract
 {
     public string SignatureHeader { get; init; } = "X-Paytness-Signature";
+    public JsonElement? Body { get; init; }
     public string EventIdProperty { get; init; } = "eventId";
     public string EventTypeProperty { get; init; } = "eventType";
     public string EventOccurredAtProperty { get; init; } = "eventOccurredAt";

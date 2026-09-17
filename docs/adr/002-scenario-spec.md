@@ -14,7 +14,17 @@ Retries and webhook deliveries are explicit; the engine does not silently add re
 
 ProviderContract adapts REST JSON shapes to the Paytness domain without executing user code. Its `version` field is also mandatory and must be exactly `1`; unknown members and invalid extraction JSON Pointers are rejected during validation. v1 permits exact HTTP method/path, JSON Pointer extraction, idempotency header, JSON response/webhook skeletons, closed bindings and state/event mappings.
 
-Initial bindings: `providerAttemptId`, `logicalPayment`, `amountMinor`, `currency`, `providerState`, `eventId`, `eventType`, `eventOccurredAt`.
+Provider responses and webhook bodies may optionally declare JSON skeletons. Static JSON objects/arrays/scalars are preserved, while a binding is represented only by an object containing exactly one property:
+
+```json
+{ "$bind": "providerAttemptId" }
+```
+
+`$bind` is reserved: an object containing that property plus any other property is invalid. There are no expressions, interpolation strings, callbacks or implicit coercions. Bound JSON values retain their type. Templates and rendered bodies are capped at 256 KiB.
+
+Response skeleton bindings are closed to: `providerAttemptId`, `logicalPayment`, `providerState`, `amountMinor`, `currency`. Webhook skeleton bindings are closed to: `eventId`, `eventType`, `eventOccurredAt`, `providerAttemptId`, `logicalPayment`, `providerState`.
+
+If `createPayment.responseBody` is omitted, Paytness emits its canonical `{providerAttemptId, logicalPayment, state}` response. If `webhook.body` is omitted, the existing configurable flat webhook-property mapping remains in effect. This fallback preserves existing v1 scenarios/reference integrations.
 
 ## Rejected
 

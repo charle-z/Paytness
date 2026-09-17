@@ -19,6 +19,16 @@ public static class ScenarioLoader
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
     };
 
+    private static readonly HashSet<string> ResponseTemplateBindings =
+    [
+        "providerAttemptId", "logicalPayment", "providerState", "amountMinor", "currency",
+    ];
+
+    private static readonly HashSet<string> WebhookTemplateBindings =
+    [
+        "eventId", "eventType", "eventOccurredAt", "providerAttemptId", "logicalPayment", "providerState",
+    ];
+
     public static async Task<LoadedScenario> LoadAsync(string scenarioPath, CancellationToken cancellationToken = default)
     {
         string fullScenarioPath = Path.GetFullPath(scenarioPath);
@@ -158,6 +168,10 @@ public static class ScenarioLoader
             throw new ScenarioValidationException("Provider amountMinor extraction pointer must be a valid RFC 6901 JSON Pointer.");
         if (contract.CreatePayment.Extract.Currency is string currency && !IsJsonPointer(currency))
             throw new ScenarioValidationException("Provider currency extraction pointer must be a valid RFC 6901 JSON Pointer.");
+        if (contract.CreatePayment.ResponseBody is JsonElement responseBody)
+            JsonBindingTemplate.Validate(responseBody, ResponseTemplateBindings);
+        if (contract.Webhook.Body is JsonElement webhookBody)
+            JsonBindingTemplate.Validate(webhookBody, WebhookTemplateBindings);
         if (string.IsNullOrWhiteSpace(contract.Webhook.SignatureHeader))
             throw new ScenarioValidationException("Provider webhook signatureHeader is required.");
         string[] webhookProperties = [contract.Webhook.EventIdProperty, contract.Webhook.EventTypeProperty, contract.Webhook.EventOccurredAtProperty, contract.Webhook.AttemptIdProperty, contract.Webhook.LogicalPaymentProperty, contract.Webhook.StateProperty];
