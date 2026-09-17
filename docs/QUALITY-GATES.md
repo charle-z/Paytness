@@ -29,6 +29,8 @@ B5 EvidenceStore pressure and 64 MiB cap/truncation.
 B6 cancellation with active webhooks/polls; no false PASS; shutdown <= 5 s.
 B7 repeated healthy runs do not show linear retained-memory growth.
 
+B3 and B4 are exercised directly by `ProviderStateTests` in the canonical xUnit suite. B5 is exercised twice: unit tests cover truncation mechanics with a small deterministic budget, while `Paytness.QualityGates` pressures the real default 64 MiB cap. B1/B2/B6 are also in `Paytness.QualityGates`; B7 remains in the controlled performance gate because retained-memory measurement is environment-sensitive.
+
 Baseline targets on Linux x64 Release are engineering gates, not commercial SLAs: provider-ready p95 <=1.5 s; normal validation p95 <=500 ms; 1 MiB validation p95 <=1 s; small-runner overhead <=500 ms excluding SUT; RSS <200 MiB under normal maximum benchmark; scheduler lag p95 <25 ms on non-saturated CPU.
 
 ## Controlled performance gate

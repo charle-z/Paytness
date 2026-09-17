@@ -1,4 +1,5 @@
 using Paytness.Execution;
+using Paytness.Reporting;
 using Paytness.Scenario;
 
 static void Require(bool condition, string message)
@@ -50,6 +51,32 @@ IReadOnlyList<string> completed = await ScheduledActionScheduler.ExecuteAsync(ac
 for (int i = 0; i < ScheduledActionScheduler.MaximumActions; i++)
     Require(completed[i] == $"a-{i + 1:D4}", $"unstable scheduler order at {i}");
 Console.WriteLine("B2 PASS");
+
+Console.WriteLine("B5: EvidenceStore 64 MiB cap");
+{
+    var store = new EvidenceStore();
+    string payload = new('x', EvidenceStore.MaxRetainedStringBytes * 2);
+    int attempted = 0;
+    while (!store.Truncation.Truncated && attempted < 10_000)
+    {
+        attempted++;
+        store.Add(new EvidenceItem(
+            attempted,
+            "b5",
+            $"item-{attempted:D5}",
+            payload,
+            new Dictionary<string, object?>()));
+    }
+
+    EvidenceTruncation truncation = store.Truncation;
+    Require(truncation.Truncated, "EvidenceStore did not truncate under the default 64 MiB budget");
+    Require(truncation.RetainedBytes <= EvidenceStore.MaxBytes, "EvidenceStore exceeded its 64 MiB cap");
+    Require(
+        truncation.RetainedBytes >= 60L * 1024 * 1024,
+        "EvidenceStore truncated before meaningful pressure near the 64 MiB cap");
+    Require(truncation.DroppedItems >= 1, "EvidenceStore truncation did not record a dropped item");
+    Console.WriteLine($"B5 PASS retained={truncation.RetainedBytes / 1024.0 / 1024.0:F2} MiB items={truncation.RetainedItems} dropped={truncation.DroppedItems}");
+}
 
 Console.WriteLine("B6: active cancellation + shutdown");
 await using (ProbeSut sut = await ProbeSut.StartAsync())
